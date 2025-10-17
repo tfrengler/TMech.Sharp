@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TMech.Utils
+namespace TMech.Sharp.Browsers
 {
     internal record BinaryDownloadAssetData
     {

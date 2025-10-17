@@ -1,8 +1,7 @@
 ﻿using NUnit.Framework;
-using NUnit.Framework.Legacy;
 using System;
 using System.IO;
-using TMech.Utils;
+using TMech.Sharp.Browsers;
 
 namespace Tests
 {
@@ -28,30 +27,30 @@ namespace Tests
 
         #region INSTALLED
 
-        private const string Category_Installed = "ChromePrivder = Installed";
+        private const string Category_Installed = "ChromeProvider = Installed";
 
         [TestCase(Category = Category_Installed)]
         public void Installed_Version_Win64()
         {
             TestContext.WriteLine($"Chrome download folder is: " + GlobalSetup.ChromeTempInstallLocation.FullName);
 
-            using (var ChromeProvider = new ChromeProvider(GlobalSetup.ChromeTempInstallLocation))
+            using (var chromeProvider = new ChromeProvider(GlobalSetup.ChromeTempInstallLocation))
             {
-                string CurrentVersion = ChromeProvider.GetCurrentInstalledVersion();
+                string CurrentVersion = chromeProvider.GetCurrentInstalledVersion();
                 Assert.That(CurrentVersion, Is.Empty);
 
                 TestContext.WriteLine($"Downloading latest Win64 version");
 
-                bool Updated = ChromeProvider.DownloadLatestVersion(TMech.Platform.Win64);
+                bool Updated = chromeProvider.DownloadLatestVersion(Platform.Win64);
                 Assert.That(Updated, Is.True);
                 Assert.That(File.Exists(ChromeDriverExeLocation + ".exe"), Is.True, $"Expected {ChromeDriverExeLocation + ".exe"} to exist but it does not");
                 Assert.That(File.Exists(ChromeExeLocation + ".exe"), Is.True, $"Expected {ChromeDriverExeLocation + ".exe"} to exist but it does not");
 
-                CurrentVersion = ChromeProvider.GetCurrentInstalledVersion();
+                CurrentVersion = chromeProvider.GetCurrentInstalledVersion();
                 Console.WriteLine("Current version: " + CurrentVersion);
                 Assert.That(CurrentVersion, Is.Not.Empty);
 
-                Updated = ChromeProvider.DownloadLatestVersion(TMech.Platform.Win64);
+                Updated = chromeProvider.DownloadLatestVersion(Platform.Win64);
                 Assert.That(Updated, Is.False);
             }
         }
@@ -64,7 +63,7 @@ namespace Tests
                 string CurrentVersion = ChromeProvider.GetCurrentInstalledVersion();
                 Assert.That(CurrentVersion, Is.Empty);
 
-                bool Updated = ChromeProvider.DownloadLatestVersion(TMech.Platform.Linux64);
+                bool Updated = ChromeProvider.DownloadLatestVersion(Platform.Linux64);
                 Assert.That(Updated, Is.True);
                 Assert.That(File.Exists(ChromeDriverExeLocation), Is.True);
                 Assert.That(File.Exists(ChromeExeLocation), Is.True);
@@ -73,7 +72,7 @@ namespace Tests
                 Console.WriteLine("Current version: " + CurrentVersion);
                 Assert.That(CurrentVersion, Is.Not.Empty);
 
-                Updated = ChromeProvider.DownloadLatestVersion(TMech.Platform.Linux64);
+                Updated = ChromeProvider.DownloadLatestVersion(Platform.Linux64);
                 Assert.That(Updated, Is.False);
             }
         }
@@ -86,7 +85,7 @@ namespace Tests
                 string CurrentVersion = ChromeProvider.GetCurrentInstalledVersion();
                 Assert.That(CurrentVersion, Is.Empty);
 
-                bool Updated = ChromeProvider.DownloadLatestVersion(TMech.Platform.Win64, true);
+                bool Updated = ChromeProvider.DownloadLatestVersion(Platform.Win64, true);
                 Assert.That(Updated, Is.True);
                 Assert.That(File.Exists(ChromeDriverExeLocation + ".exe"), Is.False);
             }
@@ -103,9 +102,10 @@ namespace Tests
         {
             using (var ChromeProvider = new ChromeProvider(GlobalSetup.ChromeTempInstallLocation))
             {
-                string LatestVersion = ChromeProvider.GetLatestAvailableVersion(TMech.Platform.Win64);
+                string LatestVersion = ChromeProvider.GetLatestAvailableVersion(Platform.Win64);
                 Console.WriteLine("Latest version: " + LatestVersion);
                 Assert.That(LatestVersion, Is.Not.Empty);
+                TestContext.WriteLine($"GetLatestAvailableVersion() reported: {LatestVersion}");
             }
         }
 
@@ -114,9 +114,10 @@ namespace Tests
         {
             using (var ChromeProvider = new ChromeProvider(GlobalSetup.ChromeTempInstallLocation))
             {
-                string LatestVersion = ChromeProvider.GetLatestAvailableVersion(TMech.Platform.Linux64);
+                string LatestVersion = ChromeProvider.GetLatestAvailableVersion(Platform.Linux64);
                 Console.WriteLine("Latest version: " + LatestVersion);
                 Assert.That(LatestVersion, Is.Not.Empty);
+                TestContext.WriteLine($"GetLatestAvailableVersion() reported: {LatestVersion}");
             }
         }
 

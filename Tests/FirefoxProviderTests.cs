@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.IO;
-using TMech.Utils;
+using TMech.Sharp.Browsers;
 
 namespace Tests
 {
@@ -32,20 +32,20 @@ namespace Tests
         [TestCase(Category = Category_Installed)]
         public void Installed_Version_Browser_Win64()
         {
-            using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
+            using (var firefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                string CurrentVersion = FirefoxProvider.GetCurrentInstalledBrowserVersion();
+                string CurrentVersion = firefoxProvider.GetCurrentInstalledBrowserVersion();
                 Assert.That(CurrentVersion, Is.Empty);
 
-                bool Updated = FirefoxProvider.DownloadLatestBrowserVersion(TMech.Platform.Win64);
+                bool Updated = firefoxProvider.DownloadLatestBrowserVersion(Platform.Win64);
                 Assert.That(Updated, Is.True);
                 Assert.That(File.Exists(FirefoxBinaryLocation + ".exe"), Is.True);
 
-                CurrentVersion = FirefoxProvider.GetCurrentInstalledBrowserVersion();
+                CurrentVersion = firefoxProvider.GetCurrentInstalledBrowserVersion();
                 Console.WriteLine("Current version: " + CurrentVersion);
                 Assert.That(CurrentVersion, Is.Not.Empty);
 
-                Updated = FirefoxProvider.DownloadLatestBrowserVersion(TMech.Platform.Win64);
+                Updated = firefoxProvider.DownloadLatestBrowserVersion(Platform.Win64);
                 Assert.That(Updated, Is.False);
                 Assert.That(File.Exists(FirefoxBinaryLocation + ".exe"), Is.True);
             }
@@ -61,7 +61,7 @@ namespace Tests
                 string CurrentVersion = FirefoxProvider.GetCurrentInstalledDriverVersion();
                 Assert.That(CurrentVersion, Is.Empty);
 
-                Updated = FirefoxProvider.DownloadLatestDriverVersion(TMech.Platform.Win64);
+                Updated = FirefoxProvider.DownloadLatestDriverVersion(Platform.Win64);
                 Assert.That(Updated, Is.True);
                 Assert.That(File.Exists(WebdriverBinaryLocation + ".exe"), Is.True);
 
@@ -69,7 +69,7 @@ namespace Tests
                 Console.WriteLine("Current version: " + CurrentVersion);
                 Assert.That(CurrentVersion, Is.Not.Empty);
 
-                Updated = FirefoxProvider.DownloadLatestDriverVersion(TMech.Platform.Win64);
+                Updated = FirefoxProvider.DownloadLatestDriverVersion(Platform.Win64);
                 Assert.That(Updated, Is.False);
                 Assert.That(File.Exists(WebdriverBinaryLocation + ".exe"), Is.True);
             }
@@ -83,7 +83,7 @@ namespace Tests
                 string CurrentVersion = FirefoxProvider.GetCurrentInstalledBrowserVersion();
                 Assert.That(CurrentVersion, Is.Empty);
 
-                bool Updated = FirefoxProvider.DownloadLatestBrowserVersion(TMech.Platform.Linux64);
+                bool Updated = FirefoxProvider.DownloadLatestBrowserVersion(Platform.Linux64);
                 Assert.That(Updated, Is.True);
                 Assert.That(File.Exists(FirefoxBinaryLocation), Is.True);
 
@@ -91,7 +91,7 @@ namespace Tests
                 Console.WriteLine("Current version: " + CurrentVersion);
                 Assert.That(CurrentVersion, Is.Not.Empty);
 
-                Updated = FirefoxProvider.DownloadLatestBrowserVersion(TMech.Platform.Linux64);
+                Updated = FirefoxProvider.DownloadLatestBrowserVersion(Platform.Linux64);
                 Assert.That(Updated, Is.False);
                 Assert.That(File.Exists(FirefoxBinaryLocation), Is.True);
             }
@@ -107,7 +107,7 @@ namespace Tests
                 string CurrentVersion = FirefoxProvider.GetCurrentInstalledDriverVersion();
                 Assert.That(CurrentVersion, Is.Empty);
 
-                Updated = FirefoxProvider.DownloadLatestDriverVersion(TMech.Platform.Linux64);
+                Updated = FirefoxProvider.DownloadLatestDriverVersion(Platform.Linux64);
                 Assert.That(Updated, Is.True);
                 Assert.That(File.Exists(WebdriverBinaryLocation), Is.True);
 
@@ -115,7 +115,7 @@ namespace Tests
                 Console.WriteLine("Current version: " + CurrentVersion);
                 Assert.That(CurrentVersion, Is.Not.Empty);
 
-                Updated = FirefoxProvider.DownloadLatestDriverVersion(TMech.Platform.Linux64);
+                Updated = FirefoxProvider.DownloadLatestDriverVersion(Platform.Linux64);
                 Assert.That(Updated, Is.False);
                 Assert.That(File.Exists(WebdriverBinaryLocation), Is.True);
             }
@@ -133,7 +133,7 @@ namespace Tests
 
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                Updated = FirefoxProvider.DownloadLatestDriverVersion(TMech.Platform.Win64);
+                Updated = FirefoxProvider.DownloadLatestDriverVersion(Platform.Win64);
                 Assert.That(Updated, Is.False);
             }
         }
@@ -147,7 +147,7 @@ namespace Tests
 
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                Updated = FirefoxProvider.DownloadLatestDriverVersion(TMech.Platform.Win64);
+                Updated = FirefoxProvider.DownloadLatestDriverVersion(Platform.Win64);
                 Assert.That(Updated, Is.True);
             }
         }
@@ -160,7 +160,7 @@ namespace Tests
 
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                bool Updated = FirefoxProvider.DownloadLatestBrowserVersion(TMech.Platform.Win64);
+                bool Updated = FirefoxProvider.DownloadLatestBrowserVersion(Platform.Win64);
                 Assert.That(Updated, Is.False);
             }
         }
@@ -173,7 +173,7 @@ namespace Tests
 
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                bool Updated = FirefoxProvider.DownloadLatestBrowserVersion(TMech.Platform.Win64);
+                bool Updated = FirefoxProvider.DownloadLatestBrowserVersion(Platform.Win64);
                 Assert.That(Updated, Is.True);
             }
         }
@@ -189,7 +189,7 @@ namespace Tests
         {
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                string LatestVersion = FirefoxProvider.GetLatestAvailableBrowserVersion(TMech.Platform.Win64);
+                string LatestVersion = FirefoxProvider.GetLatestAvailableBrowserVersion(Platform.Win64);
                 Console.WriteLine("Latest version: " + LatestVersion);
                 Assert.That(LatestVersion, Is.Not.Empty);
             }
@@ -200,7 +200,7 @@ namespace Tests
         {
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                string LatestVersion = FirefoxProvider.GetLatestAvailableDriverVersion(TMech.Platform.Win64);
+                string LatestVersion = FirefoxProvider.GetLatestAvailableDriverVersion(Platform.Win64);
                 Console.WriteLine("Latest version: " + LatestVersion);
                 Assert.That(LatestVersion, Is.Not.Empty);
             }
@@ -211,7 +211,7 @@ namespace Tests
         {
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                string LatestVersion = FirefoxProvider.GetLatestAvailableBrowserVersion(TMech.Platform.Linux64);
+                string LatestVersion = FirefoxProvider.GetLatestAvailableBrowserVersion(Platform.Linux64);
                 Console.WriteLine("Latest version: " + LatestVersion);
                 Assert.That(LatestVersion, Is.Not.Empty);
             }
@@ -222,7 +222,7 @@ namespace Tests
         {
             using (var FirefoxProvider = new FirefoxProvider(GlobalSetup.FirefoxTempInstallLocation))
             {
-                string LatestVersion = FirefoxProvider.GetLatestAvailableDriverVersion(TMech.Platform.Linux64);
+                string LatestVersion = FirefoxProvider.GetLatestAvailableDriverVersion(Platform.Linux64);
                 Console.WriteLine("Latest version: " + LatestVersion);
                 Assert.That(LatestVersion, Is.Not.Empty);
             }

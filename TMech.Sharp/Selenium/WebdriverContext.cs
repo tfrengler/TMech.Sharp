@@ -9,7 +9,7 @@ using System.Drawing;
 using System.IO;
 using System.Threading;
 
-namespace TMech.Utils
+namespace TMech.Sharp.Selenium
 {
     /// <summary>
     /// A context acting as a wrapper around a Selenium <see cref="IWebDriver"/>-instance, with bootstrapping methods for getting a webdriver up and running.
@@ -22,7 +22,7 @@ namespace TMech.Utils
         /// <param name="remoteUrl">The public address of the remote server.</param>
         /// <returns>An instance that is configured, but not yet initialized, for running against the server at <paramref name="remoteUrl"/>.</returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static WebdriverContext CreateRemote(Browser browser, Uri remoteUrl)
+        public static WebdriverContext CreateRemote(Browsers.Browser browser, Uri remoteUrl)
         {
             ArgumentNullException.ThrowIfNull(remoteUrl);
             Trace.TraceInformation("WebdriverContext: Creating a remote webdriver context for {0} running against: {1}", browser, remoteUrl.ToString());
@@ -50,15 +50,15 @@ namespace TMech.Utils
         /// <param name="browserBinaryLocation">Optional. The location of the browser executable for starting the browser. If omitted then Selenium attempts to find the browser installed on the machine.</param>
         /// <returns>An instance that is configured, but not yet initialized, for running against a local browser.</returns>
         /// <exception cref="InvalidOperationException"></exception>
-        public static WebdriverContext CreateLocal(Browser browser, FileInfo? browserBinaryLocation = null)
+        public static WebdriverContext CreateLocal(Browsers.Browser browser, FileInfo? browserBinaryLocation = null)
         {
             Trace.TraceInformation("WebdriverContext: Creating a local webdriver context using a default driver service ({0})", browser);
 
             DriverService Service = browser switch
             {
-                Browser.CHROME => ChromeDriverService.CreateDefaultService(),
-                Browser.FIREFOX => FirefoxDriverService.CreateDefaultService(),
-                Browser.EDGE => EdgeDriverService.CreateDefaultService(),
+                Browsers.Browser.CHROME => ChromeDriverService.CreateDefaultService(),
+                Browsers.Browser.FIREFOX => FirefoxDriverService.CreateDefaultService(),
+                Browsers.Browser.EDGE => EdgeDriverService.CreateDefaultService(),
                 _ => throw new InvalidOperationException($"Not a valid value for argument '{nameof(browser)}': " + browser)
             };
 
@@ -112,9 +112,9 @@ namespace TMech.Utils
 
                 _Webdriver = Browser switch
                 {
-                    Browser.CHROME => new ChromeDriver((ChromeDriverService)DriverService!, (ChromeOptions)Options),
-                    Browser.FIREFOX => new FirefoxDriver((FirefoxDriverService)DriverService!, (FirefoxOptions)Options),
-                    Browser.EDGE => new EdgeDriver((EdgeDriverService)DriverService!, (EdgeOptions)Options),
+                    Browsers.Browser.CHROME => new ChromeDriver((ChromeDriverService)DriverService!, (ChromeOptions)Options),
+                    Browsers.Browser.FIREFOX => new FirefoxDriver((FirefoxDriverService)DriverService!, (FirefoxOptions)Options),
+                    Browsers.Browser.EDGE => new EdgeDriver((EdgeDriverService)DriverService!, (EdgeOptions)Options),
                     _ => throw new InvalidOperationException()
                 };
             }
@@ -140,7 +140,7 @@ namespace TMech.Utils
             return this;
         }
 
-        private WebdriverContext(Browser browser, Uri remoteUrl)
+        private WebdriverContext(Browsers.Browser browser, Uri remoteUrl)
         {
             Debug.Assert(remoteUrl is not null);
 
@@ -155,9 +155,9 @@ namespace TMech.Utils
 
             Browser = service switch
             {
-                var x when x is ChromeDriverService => Browser.CHROME,
-                var x when x is FirefoxDriverService => Browser.FIREFOX,
-                var x when x is EdgeDriverService => Browser.EDGE,
+                var x when x is ChromeDriverService => Browsers.Browser.CHROME,
+                var x when x is FirefoxDriverService => Browsers.Browser.FIREFOX,
+                var x when x is EdgeDriverService => Browsers.Browser.EDGE,
                 _ => throw new InvalidOperationException()
             };
 
@@ -193,12 +193,12 @@ namespace TMech.Utils
         /// <summary>
         /// Which browser this webdriver represents:
         /// <list type="bullet">
-        ///     <item>If <see cref="Browser.CHROME"/> then <see cref="Webdriver"/> is an instance of <see cref="ChromeDriver"/>.</item>
-        ///     <item>If <see cref="Browser.FIREFOX"/> then <see cref="Webdriver"/> is an instance of <see cref="FirefoxDriver"/>.</item>
-        ///     <item>If <see cref="Browser.EDGE"/> then <see cref="Webdriver"/> is an instance of <see cref="EdgeDriver"/>.</item>
+        ///     <item>If <see cref="Browsers.Browser.CHROME"/> then <see cref="Webdriver"/> is an instance of <see cref="ChromeDriver"/>.</item>
+        ///     <item>If <see cref="Browsers.Browser.FIREFOX"/> then <see cref="Webdriver"/> is an instance of <see cref="FirefoxDriver"/>.</item>
+        ///     <item>If <see cref="Browsers.Browser.EDGE"/> then <see cref="Webdriver"/> is an instance of <see cref="EdgeDriver"/>.</item>
         /// </list>
         /// </summary>
-        public Browser Browser { get; private set; }
+        public Browsers.Browser Browser { get; private set; }
 
         /// <summary>
         /// A reference to <see cref="IWebDriver"/>-instance this context is wrapped around once initialized. Will throw an exception if accessed before calling <see cref="Initialize"/>.
@@ -223,7 +223,7 @@ namespace TMech.Utils
 
             switch (Browser)
             {
-                case Browser.CHROME:
+                case Browsers.Browser.CHROME:
                     var ChromeOptions = new ChromeOptions();
                     if (browserArguments is not null) ChromeOptions.AddArguments(browserArguments);
 
@@ -246,7 +246,7 @@ namespace TMech.Utils
                     ReturnData = ChromeOptions;
                     break;
 
-                case Browser.FIREFOX:
+                case Browsers.Browser.FIREFOX:
                     var FirefoxOptions = new FirefoxOptions();
                     FirefoxOptions.Profile = new FirefoxProfile() { DeleteAfterUse = true };
 
@@ -300,7 +300,7 @@ namespace TMech.Utils
                     ReturnData = FirefoxOptions;
                     break;
 
-                case Browser.EDGE:
+                case Browsers.Browser.EDGE:
                     var EdgeOptions = new EdgeOptions();
                     if (browserArguments is not null) EdgeOptions.AddArguments(browserArguments);
 

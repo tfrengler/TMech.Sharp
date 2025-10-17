@@ -6,8 +6,6 @@ using System.IO;
 [SetUpFixture]
 public class GlobalSetup
 {
-    public static readonly FileInfo ChromeLocation = new FileInfo(@"C:\Dev\tools\chrome_test\chrome.exe");
-    public static readonly FileInfo ChromeDriverLocation = new FileInfo(@"C:\Dev\tools\chrome_test\chromedriver.exe");
     public static DirectoryInfo FirefoxTempInstallLocation;
     public static DirectoryInfo ChromeTempInstallLocation;
     public static DirectoryInfo DownloadsFolder;
@@ -46,7 +44,9 @@ public class GlobalSetup
         foreach(var CurrentProcess in AllProcesses)
         {
             if (Array.IndexOf(BrowserDriverProcessNames, CurrentProcess.ProcessName) > -1)
+            {
                 CurrentProcess.Kill(true);
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Net.Http;
 
-namespace CZ.DM.Art.Core.HttpService
+namespace TMech.Sharp.RequestMonkey
 {
     public sealed class HttpService
     {
@@ -21,9 +21,9 @@ namespace CZ.DM.Art.Core.HttpService
             };
         }
 
-        public HttpRequest NewPutRequest(string? destination = null) => new HttpRequest(this, HttpMethod.Put, destination);
-        public HttpRequest NewPostRequest(string? destination = null) => new HttpRequest(this, HttpMethod.Post, destination);
-        public HttpRequest NewGetRequest(string? destination = null) => new HttpRequest(this, HttpMethod.Get, destination);
-        public HttpRequest NewDeleteRequest(string? destination = null) => new HttpRequest(this, HttpMethod.Delete, destination);
+        public RequestMonkey NewPutRequest(string? destination = null) => new(this, HttpMethod.Put, destination);
+        public RequestMonkey NewPostRequest(string? destination = null) => new(this, HttpMethod.Post, destination);
+        public RequestMonkey NewGetRequest(string? destination = null) => new(this, HttpMethod.Get, destination);
+        public RequestMonkey NewDeleteRequest(string? destination = null) => new(this, HttpMethod.Delete, destination);
     }
 }

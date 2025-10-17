@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 
-namespace CZ.DM.Art.Core.HttpService
+namespace TMech.Sharp.RequestMonkey
 {
     /// <summary>
     /// A factory class for building a url encoded formdata body using a fluent API.

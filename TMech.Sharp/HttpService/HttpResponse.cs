@@ -5,10 +5,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace CZ.DM.Art.Core.HttpService
+namespace TMech.Sharp.RequestMonkey
 {
     /// <summary>
     /// <para>Represents the response to an HTTP request, exposing the status code and headers, as well as various methods to consume the contents of the body as bytes, string, JSON etc.</para>

@@ -1,6 +1,7 @@
 ﻿using SharpCompress.Archives;
 using SharpCompress.Common;
 using SharpCompress.Compressors.BZip2;
+using SharpCompress.Compressors.Xz;
 using SharpCompress.Readers;
 using System;
 using System.Diagnostics;
@@ -16,7 +17,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-namespace TMech.Utils
+namespace TMech.Sharp.Browsers
 {
     /// <summary>
     /// <para>A service that allows you to maintain the latest <b>stable</b> version of Firefox for <c>Windows 64-bit</c> and <c>Linux 64-bit</c> in a directory of your choice. It handles checking versions as well as downloading, and extracting the latest release.</para>
@@ -171,7 +172,7 @@ namespace TMech.Utils
                     ExtractWin64BrowserToInstallLocation(ResponseContentBuffer);
                     break;
                 case Platform.Linux64:
-                    ExtractLinux64BrowserToInstallLocation(ResponseContentBuffer);
+                     ExtractLinux64BrowserToInstallLocation(ResponseContentBuffer);
                     break;
 
                 default:
@@ -309,10 +310,10 @@ namespace TMech.Utils
 
         private void ExtractLinux64BrowserToInstallLocation(MemoryStream browserArchiveStream)
         {
-            using (var BZ2Stream = new BZip2Stream(browserArchiveStream, SharpCompress.Compressors.CompressionMode.Decompress, false))
+            using (var xzSteam = new XZStream(browserArchiveStream))
             {
                 var DirectoryPrefixRegex = new Regex("^firefox/");
-                using var ArchiveReader = new TarReader(BZ2Stream, false);
+                using var ArchiveReader = new TarReader(xzSteam, false);
                 TarEntry? CurrentEntry = ArchiveReader.GetNextEntry();
 
                 while (CurrentEntry is not null)
@@ -478,13 +479,6 @@ namespace TMech.Utils
         {
             if (IsDisposed) return;
             IsDisposed = true;
-
-            GC.SuppressFinalize(this);
-            HttpClient?.Dispose();
-        }
-
-        ~FirefoxProvider()
-        {
             HttpClient?.Dispose();
         }
 

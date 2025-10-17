@@ -1,4 +1,4 @@
-﻿namespace TMech
+﻿namespace TMech.Sharp.Browsers
 {
     public enum Platform
     {

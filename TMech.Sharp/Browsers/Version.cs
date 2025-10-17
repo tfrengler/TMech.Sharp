@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TMech.Utils
+namespace TMech.Sharp.Browsers
 {
     internal readonly struct Version : IComparer<Version>, IComparable<Version>
     {

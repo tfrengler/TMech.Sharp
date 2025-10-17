@@ -12,7 +12,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 
-namespace TMech.Utils
+namespace TMech.Sharp.Browsers
 {
     /// <summary>
     /// <para>A service that allows you to maintain the latest <b>stable</b> version of <b>Chrome for Testing</b> for <c>Windows 64-bit</c> and <c>Linux 64-bit</c> in a directory of your choice. It handles checking versions as well as downloading, and extracting the latest release.</para>
@@ -283,13 +283,6 @@ namespace TMech.Utils
         {
             if (IsDisposed) return;
             IsDisposed = true;
-
-            GC.SuppressFinalize(this);
-            HttpClient?.Dispose();
-        }
-
-        ~ChromeProvider()
-        {
             HttpClient?.Dispose();
         }
     }

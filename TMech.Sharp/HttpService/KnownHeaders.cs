@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Net.Http.Headers;
 
-namespace CZ.DM.Art.Core.HttpService
+namespace TMech.Sharp.RequestMonkey
 {
     public sealed class KnownHeaders
     {
-        public KnownHeaders(in List<KeyValuePair<string, string>> headerContainer, in HttpRequest httpRequest)
+        public KnownHeaders(in List<KeyValuePair<string, string>> headerContainer, in RequestMonkey httpRequest)
         {
             HeaderContainer = headerContainer;
             HttpRequest = httpRequest;
@@ -15,7 +15,7 @@ namespace CZ.DM.Art.Core.HttpService
         }
 
         private readonly List<KeyValuePair<string, string>> HeaderContainer;
-        private readonly HttpRequest HttpRequest;
+        private readonly RequestMonkey HttpRequest;
         //private readonly Logger Logger;
 
         public KnownHeaders Authorization_Bearer(string token)
@@ -66,9 +66,10 @@ namespace CZ.DM.Art.Core.HttpService
             return this;
         }
 
-        public HttpRequest Done()
+        public RequestMonkey Done()
         {
             return HttpRequest;
         }
     }
 }
+
