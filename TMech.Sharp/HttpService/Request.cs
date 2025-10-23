@@ -10,14 +10,14 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace TMech.Sharp.RequestMonkey
+namespace TMech.Sharp.HttpService
 {
     /// <summary>
     /// A helper class for simplifying calling an API endpoint, adding url parameters and body content using a fluent API.
     /// </summary>
-    public sealed class RequestMonkey : IDisposable
+    public sealed class Request : IDisposable
     {
-        public RequestMonkey(HttpService httpService, HttpMethod method, string? destinationRelative = null)
+        public Request(HttpService httpService, HttpMethod method, string? destinationRelative = null)
         {
             ArgumentNullException.ThrowIfNull(httpService);
             ArgumentNullException.ThrowIfNull(method);
@@ -56,7 +56,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Gets the underlying http request that this instance wraps around. Will be <see langword="null"/> until <see cref="Send"/> is called.
         /// </summary>
-        public HttpRequestMessage? Request { get; private set; }
+        public HttpRequestMessage? TheRequest { get; private set; }
 
         private readonly Uri Destination;
         private readonly HttpMethod Method;
@@ -72,7 +72,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a multipart formdata-body to the http request. Will throw an exception if the body of the request has already been set by another method.<br/>
         /// </summary>
-        public RequestMonkey WithMultipartFormBody(MultipartFormBuilder formFactory)
+        public Request WithMultipartFormBody(MultipartFormBuilder formFactory)
         {
             ArgumentNullException.ThrowIfNull(formFactory);
             Body = formFactory.Build();
@@ -82,7 +82,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a formdata-body with url encoded key/value-pairs to the http request. Will throw an exception if the body of the request has already been set by another method.<br/>
         /// </summary>
-        public RequestMonkey WithUrlEncodedFormBody(UrlEncodedFormBuilder formFactory)
+        public Request WithUrlEncodedFormBody(UrlEncodedFormBuilder formFactory)
         {
             ArgumentNullException.ThrowIfNull(formFactory);
             var BodyContent = formFactory.Build();
@@ -95,7 +95,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a formdata-body to the http request. Will throw an exception if the body of the request has already been set by another method.
         /// </summary>
-        public RequestMonkey WithUrlEncodedFormBody(IEnumerable<KeyValuePair<string, string>> formContent)
+        public Request WithUrlEncodedFormBody(IEnumerable<KeyValuePair<string, string>> formContent)
         {
             ArgumentNullException.ThrowIfNull(formContent);
             Body = new FormUrlEncodedContent(formContent);
@@ -110,7 +110,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Sets string data as the body to the http request and sets the 'Content-Type' to 'text/plain'. Will throw an exception if the body of the request has already been set by another method.<br/>
         /// </summary>
-        public RequestMonkey WithStringBody(string content)
+        public Request WithStringBody(string content)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(content);
             Body = new StringContent(content, MediaTypes.PlainText);
@@ -120,7 +120,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Serializes a given object to a string and sets that as the body of the http request, along with setting the 'Content-Type' to 'application/json'. Will throw an exception if the body of the request has already been set by another method.<br/>
         /// </summary>
-        public RequestMonkey WithJsonBody<T>(T content)
+        public Request WithJsonBody<T>(T content)
         {
             ArgumentNullException.ThrowIfNull(content);
 
@@ -135,7 +135,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Serializes a given object to a string and sets that as the body of the http request, along with setting the 'Content-Type' to 'application/json'. Will throw an exception if the body of the request has already been set by another method.<br/>
         /// </summary>
-        public RequestMonkey WithJsonBody<T>(T content, JsonSerializerOptions options)
+        public Request WithJsonBody<T>(T content, JsonSerializerOptions options)
         {
             ArgumentNullException.ThrowIfNull(content);
             ArgumentNullException.ThrowIfNull(options);
@@ -152,7 +152,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Sets string data as the body of the http request and sets the 'Content-Type' to 'application/json'. Will throw an exception if the body of the request has already been set by another method.
         /// </summary>
-        public RequestMonkey WithJsonBody(string content)
+        public Request WithJsonBody(string content)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(content);
 
@@ -164,7 +164,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <para>Sets the body of the http request to XML represented by the string you pass and the 'Content-Type' to 'application/soap+xml'. Will throw an exception if the body of the request has already been set by another method.</para>
         /// <para><b>NOTE</b>: Meant for SOAP 1.2 where the 'action' is sent as part of the 'Content-Type'-header and not via the custom 'SOAPAction'-header.</para>
         /// </summary>
-        public RequestMonkey WithSoapXmlBodyV12(string content, string action)
+        public Request WithSoapXmlBodyV12(string content, string action)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(content);
             ArgumentException.ThrowIfNullOrWhiteSpace(action);
@@ -180,7 +180,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <para>Sets the body of the http request to XML represented by the string you pass and the 'Content-Type' to 'text/xml'. Will throw an exception if the body of the request has already been set by another method.</para>
         /// <para><b>NOTE</b>: Meant for SOAP 1.1 where the 'action' is sent as part of the custom 'SOAPAction'-header.</para>
         /// </summary>
-        public RequestMonkey WithSoapXmlBodyV11(string content, string action)
+        public Request WithSoapXmlBodyV11(string content, string action)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(content);
             ArgumentException.ThrowIfNullOrWhiteSpace(action);
@@ -199,7 +199,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a string-value.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, string value)
+        public Request WithUrlParameter(string name, string value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
@@ -211,7 +211,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and an object, which will be JSON serialized.
         /// </summary>
-        public RequestMonkey WithUrlParameter<T>(string name, T value) where T : class
+        public Request WithUrlParameter<T>(string name, T value) where T : class
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentNullException.ThrowIfNull(value);
@@ -225,7 +225,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and an integer.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, int value)
+        public Request WithUrlParameter(string name, int value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             UrlParams.Add(name, Convert.ToString(value));
@@ -236,7 +236,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a long (64-bit integer).
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, long value)
+        public Request WithUrlParameter(string name, long value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             UrlParams.Add(name, Convert.ToString(value));
@@ -247,7 +247,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a boolean.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, bool value)
+        public Request WithUrlParameter(string name, bool value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             UrlParams.Add(name, Convert.ToString(value));
@@ -258,7 +258,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a datetime-object, which will be written in the C# roundtrip-format.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, DateTime value)
+        public Request WithUrlParameter(string name, DateTime value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             UrlParams.Add(name, value.ToString("o"));
@@ -269,7 +269,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a datetime-object, which will be written in the format you specify.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, DateTime value, string format)
+        public Request WithUrlParameter(string name, DateTime value, string format)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(format);
@@ -282,7 +282,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a enum-value, which will be written by its name and not the underlying numeric value.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, Enum value)
+        public Request WithUrlParameter(string name, Enum value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             UrlParams.Add(name, Enum.GetName(value.GetType(), value));
@@ -293,7 +293,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a collection of strings. The strings will be combined into one, separated by commas.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, IEnumerable<string> values)
+        public Request WithUrlParameter(string name, IEnumerable<string> values)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentNullException.ThrowIfNull(values);
@@ -306,7 +306,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form of a name and a collection of integers. The integers will be combined into one, separated by commas.
         /// </summary>
-        public RequestMonkey WithUrlParameter(string name, IEnumerable<int> values)
+        public Request WithUrlParameter(string name, IEnumerable<int> values)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentNullException.ThrowIfNull(values);
@@ -319,7 +319,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form a collection of keyvalue-pairs of strings, where the key is the name of the URL param and the value is the value. The value will be combined into one string, separated by commas.
         /// </summary>
-        public RequestMonkey WithUrlParameters(IEnumerable<KeyValuePair<string, string>> parameters)
+        public Request WithUrlParameters(IEnumerable<KeyValuePair<string, string>> parameters)
         {
             ArgumentNullException.ThrowIfNull(parameters);
 
@@ -336,7 +336,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds a URL parameter to the request, in the form a collection of dictionary of strings, where the key is the name of the URL param and the value is the value. The value will be combined into one string, separated by commas.
         /// </summary>
-        public RequestMonkey WithUrlParameters(IDictionary<string, string> parameters)
+        public Request WithUrlParameters(IDictionary<string, string> parameters)
         {
             ArgumentNullException.ThrowIfNull(parameters);
 
@@ -357,7 +357,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds an HTTP-header to the request, in the form of a name and a string-value.
         /// </summary>
-        public RequestMonkey WithHeader(string name, string value)
+        public Request WithHeader(string name, string value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentException.ThrowIfNullOrWhiteSpace(value);
@@ -369,7 +369,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds an HTTP-header to the request, in the form of a keyvalue-pair of strings, where the key is the header-name and the value are the values.
         /// </summary>
-        public RequestMonkey WithHeader(KeyValuePair<string, string> header)
+        public Request WithHeader(KeyValuePair<string, string> header)
         {
             Headers.Add(header);
             return this;
@@ -378,7 +378,7 @@ namespace TMech.Sharp.RequestMonkey
         /// <summary>
         /// Adds several HTTP-headers to the request, in the form of a collection of keyvalue-pairs of strings, where the key is the header-name and the value are the values.
         /// </summary>
-        public RequestMonkey WithHeaders(IEnumerable<KeyValuePair<string, string>> headers)
+        public Request WithHeaders(IEnumerable<KeyValuePair<string, string>> headers)
         {
             ArgumentNullException.ThrowIfNull(headers);
 
@@ -416,11 +416,11 @@ namespace TMech.Sharp.RequestMonkey
                 requestURL = Destination + "?" + UrlParamString;
             }
 
-            Request = new HttpRequestMessage(Method, requestURL);
+            TheRequest = new HttpRequestMessage(Method, requestURL);
 
             if (Body is not null)
             {
-                Request.Content = Body;
+                TheRequest.Content = Body;
                 //Logger.Info($"With body content ({Request.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"})");
             }
 
@@ -428,7 +428,7 @@ namespace TMech.Sharp.RequestMonkey
             {
                 foreach (var currentHeader in Headers)
                 {
-                    Request.Headers.Add(currentHeader.Key, currentHeader.Value);
+                    TheRequest.Headers.Add(currentHeader.Key, currentHeader.Value);
                 }
             }
 
@@ -442,7 +442,7 @@ namespace TMech.Sharp.RequestMonkey
 
             try
             {
-                Response = await HttpService.HttpClient.SendAsync(Request);
+                Response = await HttpService.HttpClient.SendAsync(TheRequest);
             }
             catch (HttpRequestException error)
             {
@@ -473,7 +473,7 @@ namespace TMech.Sharp.RequestMonkey
         {
             if (IsDisposed) return;
             IsDisposed = true;
-            Request?.Dispose();
+            TheRequest?.Dispose();
         }
     }
 

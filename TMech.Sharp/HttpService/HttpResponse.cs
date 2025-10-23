@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Xml.Linq;
 
-namespace TMech.Sharp.RequestMonkey
+namespace TMech.Sharp.HttpService
 {
     /// <summary>
     /// <para>Represents the response to an HTTP request, exposing the status code and headers, as well as various methods to consume the contents of the body as bytes, string, JSON etc.</para>

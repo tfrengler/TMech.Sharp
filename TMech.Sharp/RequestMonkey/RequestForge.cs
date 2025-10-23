@@ -1,0 +1,170 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
+
+namespace TMech.Sharp.RequestMonkey
+{
+    public sealed class RequestForge
+    {
+        private RequestForge(RequestConfiguration config)
+        {
+            ArgumentNullException.ThrowIfNull(config);
+            _config = config;
+        }
+
+        private readonly RequestConfiguration _config;
+        private HttpMessageHandler? _messageHandler;
+
+        #region STATIC / INITIALIZATION
+
+        public static RequestForge FromBaseAddress(string baseAddress)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(baseAddress);
+            
+            return new RequestForge(new RequestConfiguration()
+            {
+                BaseAddress = baseAddress
+            });
+        }
+
+        /// <summary>
+        /// <para>Creates an instance and allows you to configure settings via a delegate.</para>
+        /// </summary>
+        public static RequestForge FromConfiguration(Action<FullConfiguration> configurationDelegate)
+        {
+            var config = new RequestConfiguration();
+            configurationDelegate(config);
+            return new RequestForge(config);
+        }
+
+        /// <summary>
+        /// <para>Creates an instance that uses the provided message handler instead of the internal one and allows you to configure settings via a delegate.</para>
+        /// </summary>
+        public static RequestForge FromConfiguration(HttpClientHandler handler, Action<BaseConfiguration> configurationDelegate)
+        {
+            ArgumentNullException.ThrowIfNull(handler);
+
+            var config = new RequestConfiguration();
+            configurationDelegate(config);
+
+            return new RequestForge(config)
+            {
+                _messageHandler = handler
+            };
+        }
+
+        #endregion
+
+        #region CONFIG/SETUP
+
+        /// <summary>
+        /// <para>Configures the underlying httpclient to use this message handler instead of its own internal instance.</para>
+        /// <para><c>NOTE:</c> When providing your own handler many of the configuration methods become no-op's since they are configured on the handler level:
+        /// <list type="bullet">
+        ///     <item>UsingDefaultCredentials</item>
+        ///     <item>UsingCredentials</item>
+        ///     <item>FollowingRedirects</item>
+        /// </list>
+        /// </para>
+        /// </summary>
+        public RequestForge WithHttpHandler(HttpMessageHandler handler)
+        {
+            ArgumentNullException.ThrowIfNull(handler);
+            _messageHandler = handler;
+
+            return this;
+        }
+
+        public RequestForge UsingDefaultCredentials()
+        {
+            _config.Credentials = CredentialCache.DefaultCredentials;
+            return this;
+        }
+
+        public RequestForge UsingCredentials(ICredentials credentials)
+        {
+            ArgumentNullException.ThrowIfNull(credentials);
+            _config.Credentials = credentials;
+            return this;
+        }
+
+        public RequestForge FollowingRedirects()
+        {
+            _config.AllowAutoRedirect = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Sets the timeout for all HTTP requests made. This can be overridden per <see cref="Request"/> spawned by PATCH, GET etc.
+        /// </summary>
+        public RequestForge WithTimeout(TimeSpan timeout)
+        {
+            _config.RequestTimeout = timeout;
+            return this;
+        }
+
+        public RequestForge WithDefaultHeaders(IDictionary<string,string> headers)
+        {
+            foreach(KeyValuePair<string,string> currentHeader in headers)
+            {
+                _config.DefaultHeaders[currentHeader.Value] = currentHeader.Value;
+            }
+
+            return this;
+        }
+
+        #endregion
+
+        #region REQUEST CREATION
+
+        public Request GET(string? relativeDestination = null) { return CreateRequest(HttpMethod.Get, relativeDestination); }
+        public Request PATCH(string? relativeDestination  = null) { return CreateRequest(HttpMethod.Patch, relativeDestination); }
+        public Request DELETE(string? relativeDestination = null) { return CreateRequest(HttpMethod.Delete, relativeDestination); }
+        public Request POST(string? relativeDestination = null) { return CreateRequest(HttpMethod.Post, relativeDestination); }
+        public Request PUT(string? relativeDestination = null) { return CreateRequest(HttpMethod.Put, relativeDestination); }
+        public Request HEAD(string? relativeDestination = null) { return CreateRequest(HttpMethod.Head, relativeDestination); }
+        public Request OPTIONS(string? relativeDestination = null) { return CreateRequest(HttpMethod.Options, relativeDestination); }
+
+        private Request CreateRequest(HttpMethod method, string? relativeDestination = null)
+        {
+            _config.OwnsHandler = _messageHandler is null;
+            var messageHandler = _messageHandler ?? new SocketsHttpHandler();
+
+            if (_config.OwnsHandler)
+            {
+                var handler = (SocketsHttpHandler)messageHandler;
+                handler.AllowAutoRedirect = _config.AllowAutoRedirect;
+                handler.Credentials = _config.Credentials;
+            }
+
+            _config.Handler = messageHandler;
+            _config.Method = method;
+            _config.RelativeDestination = relativeDestination;
+
+            return new Request(_config with { });
+        }
+
+        #endregion
+    }
+
+    /// <summary>
+    /// Includes base settings in addition to the ones used by the underlying message handler.
+    /// </summary>
+    public record FullConfiguration : BaseConfiguration
+    {
+        public ICredentials? Credentials { get; set; }
+        public bool AllowAutoRedirect { get; set; }
+    }
+
+    /// <summary>
+    /// Settings that apply per request (set on the HttpClient or used by <see cref="Request"/> directly).
+    /// </summary>
+    public record BaseConfiguration
+    {
+        public string BaseAddress { get; set; } = string.Empty;
+        public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(30);
+        public IDictionary<string, string> DefaultHeaders { get; } = new Dictionary<string, string>();
+    }
+}

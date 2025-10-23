@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace TMech.Sharp.RequestMonkey
+namespace TMech.Sharp.HttpService
 {
     /// <summary>
     /// A factory class for building a multipart formdata body using a fluent API.

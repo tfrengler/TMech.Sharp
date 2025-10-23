@@ -46,7 +46,7 @@ namespace TMech.Sharp.Selenium
         /// <summary>
         /// Creates a webdriver to be used locally, running tests against a browser on this machine.
         /// </summary>
-        /// <param name="browser">The service used to manage the lifetime of the browser driver.</param>
+        /// <param name="browser">Which browser to start.</param>
         /// <param name="browserBinaryLocation">Optional. The location of the browser executable for starting the browser. If omitted then Selenium attempts to find the browser installed on the machine.</param>
         /// <returns>An instance that is configured, but not yet initialized, for running against a local browser.</returns>
         /// <exception cref="InvalidOperationException"></exception>
@@ -93,6 +93,7 @@ namespace TMech.Sharp.Selenium
 
             if (IsRemote)
             {
+                Debug.Assert(RemoteServerUrl is not null);
                 Trace.TraceInformation("WebdriverContext: Initializing remote webdriver instance");
                 var ReturnData = new RemoteWebDriver(RemoteServerUrl, Options);
                 ReturnData.FileDetector = new LocalFileDetector();
