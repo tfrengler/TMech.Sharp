@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace TMech.Sharp.RequestMonkey
 {
@@ -16,6 +17,14 @@ namespace TMech.Sharp.RequestMonkey
 
         private readonly RequestConfiguration _config;
         private HttpMessageHandler? _messageHandler;
+
+        public static JsonSerializerOptions DefaultJsonSerializerOptions { get; } = new JsonSerializerOptions()
+        {
+            WriteIndented = true,
+            Converters = { new JsonStringEnumConverter(null, true) },
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        };
 
         #region STATIC / INITIALIZATION
 
@@ -102,6 +111,12 @@ namespace TMech.Sharp.RequestMonkey
         public RequestForge WithTimeout(TimeSpan timeout)
         {
             _config.RequestTimeout = timeout;
+            return this;
+        }
+
+        public RequestForge WithJsonHandlingOptions(JsonSerializerOptions option)
+        {
+            _config.JsonOptions = option;
             return this;
         }
 

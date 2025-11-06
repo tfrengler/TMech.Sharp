@@ -1,15 +1,15 @@
-﻿using OpenQA.Selenium;
+﻿using CZ.DM.Art.Core.Shared;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Web;
 using System.Xml.Linq;
 using TMech.Sharp.HttpService;
-using ZstdSharp.Unsafe;
 
 namespace TMech.Sharp.RequestMonkey
 {
@@ -28,11 +28,17 @@ namespace TMech.Sharp.RequestMonkey
             {
                 Timeout = config.RequestTimeout
             };
+
+            _request = new HttpRequestMessage()
+            {
+                Method = _config.Method
+            };
         }
 
         private readonly RequestConfiguration _config;
         private bool _isDisposed;
         private readonly HttpClient _httpClient;
+        private HttpRequestMessage _request = null!;
 
         /// <summary>
         /// The default number parsing format to use when outputting decimal numbers (floats and doubles) in URL-params or as part of the path:
@@ -49,6 +55,8 @@ namespace TMech.Sharp.RequestMonkey
             CurrencySymbol = ""
         };
 
+        #region MISC
+
         public Request WithTimeOut(TimeSpan timeout)
         {
             _config.RequestTimeout = timeout;
@@ -63,6 +71,10 @@ namespace TMech.Sharp.RequestMonkey
             _config.Headers[name] = value;
             return this;
         }
+
+        public Request WithKnownHeaders(Func<KnownHeaders, KnownHeaders> headers) { return this; }
+
+        #endregion
 
         #region URL PARAMETERS
 
@@ -217,17 +229,71 @@ namespace TMech.Sharp.RequestMonkey
 
         #endregion
 
-        public Request WithKnownHeaders(Func<KnownHeaders, KnownHeaders> headers) { return this;}
-        public Request WithXmlBody(XElement body) { return this;}
-        public Request WithXmlBody(string body) { return this;}
+        #region BODY
+
+        public Request WithXmlBody(XElement body, MediaTypeHeaderValue? mediaType = null)
+        {
+            if (mediaType is null)
+            {
+                mediaType = MediaTypes.Xml;
+            }
+
+            _request.Content = new StringContent(XmlSerialization.Serialize(body), mediaType);
+            return this;
+        }
+
+        public Request WithSoapXmlBody(XElement body, string action, SoapVersion version)
+        {
+            MediaTypeHeaderValue mediaType;
+
+            switch (version)
+            {
+                case SoapVersion.v11:
+                    mediaType = MediaTypes.TextXml;
+                    _config.Headers.Add("SOAPAction", action);
+                    break;
+                case SoapVersion.v12:
+                    mediaType = MediaTypes.SoapXml;
+                    mediaType.Parameters.Add(new("action", $"\"{action}\""));
+                    break;
+                default:
+                    throw new Exception("Invalid SoapVersion");
+            }
+
+            _request.Content = new StringContent(XmlSerialization.Serialize(body), mediaType);
+            return this;
+        }
+
+        public Request WithXmlBody(string body)
+        {
+            _request.Content = new StringContent(body, MediaTypes.Xml);
+            return this;
+        }
+
         public Request WithJsonBody<T>(T body, JsonSerializerOptions? options = null) { return this;}
         public Request WithJsonBody(string body) { return this;}
         public Request WithPlainTextBody(string body) { return this;}
         public Request WithByteArrayBody(byte[] body) { return this;}
-        public Request WithMultipartFormBody(Func<MultipartFormBuilder> builderDelegate) { return this; }
-        public Request WithUrlEncodedBody(Func<UrlEncodedFormBuilder> builderDelegate) { return this; }
+        public Request WithMultipartFormBody(Action<MultipartFormBuilder> builderDelegate) { return this; }
+        public Request WithUrlEncodedBody(Action<UrlEncodedFormBuilder> builderDelegate) { return this; }
 
-        //Send(): Response
+        #endregion
+
+        public Response Send()
+        {
+            string destination = _config.RelativeDestination ?? string.Empty;
+            if (_config.UrlParameters.Count > 0)
+            {
+                destination = destination + '?' + _config.UrlParameters.ToString();
+            }
+
+            if (destination.Length > 0)
+            {
+                _request.RequestUri = new Uri(destination);
+            }
+
+            return new Response(_httpClient, _request);
+        }
 
         public void Dispose()
         {
@@ -243,8 +309,14 @@ namespace TMech.Sharp.RequestMonkey
         public HttpMethod Method { get; set; } = null!;
         public HttpMessageHandler Handler { get; set; } = null!;
         public bool OwnsHandler { get; set; }
-        public Dictionary<string, string> Headers { get; } = new();
+        public Dictionary<string, string> Headers { get; } = [];
         public NameValueCollection UrlParameters { get; } = HttpUtility.ParseQueryString(string.Empty);
+        public JsonSerializerOptions JsonOptions { get; set; }
+
+        public RequestConfiguration()
+        {
+            JsonOptions = RequestForge.DefaultJsonSerializerOptions;
+        }
 
         public bool TryValidate([NotNullWhen(false)] out AggregateException? errors)
         {
