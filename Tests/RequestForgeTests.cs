@@ -15,6 +15,10 @@ namespace Tests
                 .GET("/filesandfolders/enumerate")
                 .WithUrlParameter("relativePath", "gnargle")
                 .WithUrlParameter("parent", false)
+                .WithKnownHeaders(x =>
+                {
+                    x.Accept("application/json");
+                })
                 .Send();
         }
     }

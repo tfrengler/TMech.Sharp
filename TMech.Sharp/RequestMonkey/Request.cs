@@ -63,27 +63,42 @@ namespace TMech.Sharp.RequestMonkey
             return this;
         }
 
-        public Request WithHeader(string name, string value)
+        public Request WithHeader(string name, string? value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            ArgumentNullException.ThrowIfNull(value);
+            
+            if (value is not null)
+            {
+                _config.Headers[name] = value;
+            }
 
-            _config.Headers[name] = value;
             return this;
         }
 
-        public Request WithKnownHeaders(Func<KnownHeaders, KnownHeaders> headers) { return this; }
+        public Request WithKnownHeaders(Action<KnownHeaders> headers)
+        {
+            headers(new KnownHeaders(_config.Headers));
+            return this;
+        }
+
 
         #endregion
 
         #region URL PARAMETERS
 
-        public Request WithUrlParameter(string name, string value)
+        /// <summary>
+        /// Adds a URL parameter with the given name where the value is a string.
+        /// <paramref name="name"/> cannot be <c>null</c> or empty. If <paramref name="value"/> is <c>null</c> nothing is added.
+        /// </summary>
+        public Request WithUrlParameter(string name, string? value)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
-            ArgumentNullException.ThrowIfNull(value);
 
-            _config.UrlParameters.Add(name, value);
+            if (value is not null)
+            {
+                _config.UrlParameters.Add(name, value);
+            }
+
             return this;
         }
 

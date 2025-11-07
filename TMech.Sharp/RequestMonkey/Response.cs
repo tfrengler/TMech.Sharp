@@ -16,6 +16,19 @@ namespace TMech.Sharp.RequestMonkey
             _httpClient = httpClient;
             _request = request;
         }
+
+        // WhenStatusIsOK
+        // WhenStatusIs
+        // WhenHeadersAre(Action<Headers>)
+        // WhenHeadersContain(Action<Headers>)
+        // WhenHeaderIs(string name, string value)
+        // WhenBodyIsPresent
+        // ThenExecute()
+        // ThenParseBodyAsString()
+        // ThenParseBodyAsLong()
+        // ThenParseBodyAsDouble()
+        // ThenParseBodyAsJson()
+        // ThenParseBodyAsXml()
     }
 }
 

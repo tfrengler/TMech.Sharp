@@ -32,13 +32,13 @@ namespace CZ.DM.Art.Core.Shared
             StandardOptions = new JsonSerialization()
                 .WriteIndented()
                 .WithEnumsAsStrings()
-                .WithoutEscaping()
+                .WithRelaxedEscaping()
                 .Options();
 
             OptionsWithoutNullValues = new JsonSerialization()
                 .WriteIndented()
-                .OmitNullValues()
-                .WithoutEscaping()
+                .OmitNullValuesOnWrite()
+                .WithRelaxedEscaping()
                 .Options();
         }
 
@@ -67,13 +67,13 @@ namespace CZ.DM.Art.Core.Shared
             return this;
         }
 
-        public JsonSerialization WithoutEscaping()
+        public JsonSerialization WithRelaxedEscaping()
         {
             _settings.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
             return this;
         }
 
-        public JsonSerialization OmitNullValues()
+        public JsonSerialization OmitNullValuesOnWrite()
         {
             _settings.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             return this;
@@ -82,6 +82,12 @@ namespace CZ.DM.Art.Core.Shared
         public JsonSerialization WithEnumsAsStrings()
         {
             _settings.Converters.Add(new JsonStringEnumConverter(null, false));
+            return this;
+        }
+
+        public JsonSerialization WithEnumsAsStringsOrNumbers()
+        {
+            _settings.Converters.Add(new JsonStringEnumConverter(null, true));
             return this;
         }
 
