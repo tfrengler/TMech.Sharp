@@ -4,7 +4,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace CZ.DM.Art.Core.Shared
+namespace TMech.Sharp.RequestMonkey
 {
     public static class StandardNamespaces
     {

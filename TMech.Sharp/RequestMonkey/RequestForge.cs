@@ -163,23 +163,4 @@ namespace TMech.Sharp.RequestMonkey
 
         #endregion
     }
-
-    /// <summary>
-    /// Includes base settings in addition to the ones used by the underlying message handler.
-    /// </summary>
-    public record FullConfiguration : BaseConfiguration
-    {
-        public ICredentials? Credentials { get; set; }
-        public bool AllowAutoRedirect { get; set; }
-    }
-
-    /// <summary>
-    /// Settings that apply per request (set on the HttpClient or used by <see cref="Request"/> directly).
-    /// </summary>
-    public record BaseConfiguration
-    {
-        public string BaseAddress { get; set; } = string.Empty;
-        public TimeSpan RequestTimeout { get; set; } = TimeSpan.FromSeconds(30);
-        public IDictionary<string, string> DefaultHeaders { get; } = new Dictionary<string, string>();
-    }
 }

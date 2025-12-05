@@ -1,5 +1,4 @@
-﻿using CZ.DM.Art.Core.Shared;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
+using TMech.Sharp.RequestMonkey;
 
 namespace TMech.Sharp.HttpService
 {
@@ -113,7 +113,7 @@ namespace TMech.Sharp.HttpService
         public Request WithStringBody(string content)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(content);
-            Body = new StringContent(content, MediaTypes.PlainText);
+            Body = new StringContent(content, StandardMediaTypes.PlainText);
             return this;
         }
 
@@ -126,7 +126,7 @@ namespace TMech.Sharp.HttpService
 
             Body = JsonContent.Create(
                 content,
-                MediaTypes.Json
+                StandardMediaTypes.Json
             );
 
             return this;
@@ -142,7 +142,7 @@ namespace TMech.Sharp.HttpService
 
             Body = JsonContent.Create(
                 content,
-                MediaTypes.Json,
+                StandardMediaTypes.Json,
                 options
             );
 
@@ -156,7 +156,7 @@ namespace TMech.Sharp.HttpService
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(content);
 
-            Body = new StringContent(content, MediaTypes.Json);
+            Body = new StringContent(content, StandardMediaTypes.Json);
             return this;
         }
 
@@ -395,7 +395,7 @@ namespace TMech.Sharp.HttpService
 
         public KnownHeaders WithKnownHeaders()
         {
-            return new KnownHeaders(Headers, this);
+            return new KnownHeaders(new(Headers));
         }
 
         #endregion

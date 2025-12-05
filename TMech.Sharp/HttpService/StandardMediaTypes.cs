@@ -2,7 +2,7 @@
 
 namespace TMech.Sharp.HttpService
 {
-    public static class MediaTypes
+    public static class StandardMediaTypes
     {
         public static MediaTypeHeaderValue Json => new("application/json", "UTF-8");
         public static MediaTypeHeaderValue TextXml => new("text/xml", "UTF-8");

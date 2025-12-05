@@ -1,13 +1,8 @@
-﻿using CZ.DM.Art.Core.Shared;
-using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Diagnostics.CodeAnalysis;
+﻿using System;
 using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using System.Web;
 using System.Xml.Linq;
 using TMech.Sharp.HttpService;
 
@@ -15,7 +10,7 @@ namespace TMech.Sharp.RequestMonkey
 {
     public sealed class Request : IDisposable
     {
-        public Request(RequestConfiguration config)
+        internal Request(RequestConfiguration config)
         {
             if (!config.TryValidate(out var errors))
             {
@@ -26,6 +21,7 @@ namespace TMech.Sharp.RequestMonkey
 
             _httpClient = new HttpClient(config.Handler)
             {
+                BaseAddress = new Uri(config.BaseAddress),
                 Timeout = config.RequestTimeout
             };
 
@@ -35,10 +31,10 @@ namespace TMech.Sharp.RequestMonkey
             };
         }
 
-        private readonly RequestConfiguration _config;
         private bool _isDisposed;
+        private readonly RequestConfiguration _config;
         private readonly HttpClient _httpClient;
-        private HttpRequestMessage _request = null!;
+        private readonly HttpRequestMessage _request = null!;
 
         /// <summary>
         /// The default number parsing format to use when outputting decimal numbers (floats and doubles) in URL-params or as part of the path:
@@ -47,6 +43,7 @@ namespace TMech.Sharp.RequestMonkey
         ///     <item>No group (thousand) separator</item>
         ///     <item>No currency symbol</item>
         ///     <item>3 decimal places used</item>
+        /// </list>
         /// </summary>
         public static NumberFormatInfo DefaultDecimalFormat { get; } = new NumberFormatInfo()
         {
@@ -250,7 +247,7 @@ namespace TMech.Sharp.RequestMonkey
         {
             if (mediaType is null)
             {
-                mediaType = MediaTypes.Xml;
+                mediaType = StandardMediaTypes.Xml;
             }
 
             _request.Content = new StringContent(XmlSerialization.Serialize(body), mediaType);
@@ -264,11 +261,11 @@ namespace TMech.Sharp.RequestMonkey
             switch (version)
             {
                 case SoapVersion.v11:
-                    mediaType = MediaTypes.TextXml;
+                    mediaType = StandardMediaTypes.TextXml;
                     _config.Headers.Add("SOAPAction", action);
                     break;
                 case SoapVersion.v12:
-                    mediaType = MediaTypes.SoapXml;
+                    mediaType = StandardMediaTypes.SoapXml;
                     mediaType.Parameters.Add(new("action", $"\"{action}\""));
                     break;
                 default:
@@ -279,14 +276,21 @@ namespace TMech.Sharp.RequestMonkey
             return this;
         }
 
-        public Request WithXmlBody(string body)
+        public Request WithXmlBody(string? body)
         {
-            _request.Content = new StringContent(body, MediaTypes.Xml);
+            if (body is null) return this;
+            _request.Content = new StringContent(body, StandardMediaTypes.Xml);
+            return this;
+        }
+
+        public Request WithJsonBody(string? body)
+        {
+            if (body is null) return this;
+            _request.Content = new StringContent(body, StandardMediaTypes.Json);
             return this;
         }
 
         public Request WithJsonBody<T>(T body, JsonSerializerOptions? options = null) { return this;}
-        public Request WithJsonBody(string body) { return this;}
         public Request WithPlainTextBody(string body) { return this;}
         public Request WithByteArrayBody(byte[] body) { return this;}
         public Request WithMultipartFormBody(Action<MultipartFormBuilder> builderDelegate) { return this; }
@@ -294,7 +298,7 @@ namespace TMech.Sharp.RequestMonkey
 
         #endregion
 
-        public Response Send()
+        public Response WhenSendingRequest()
         {
             string destination = _config.RelativeDestination ?? string.Empty;
             if (_config.UrlParameters.Count > 0)
@@ -304,7 +308,7 @@ namespace TMech.Sharp.RequestMonkey
 
             if (destination.Length > 0)
             {
-                _request.RequestUri = new Uri(destination);
+                _request.RequestUri = new Uri(destination, UriKind.Relative);
             }
 
             return new Response(_httpClient, _request);
@@ -315,51 +319,6 @@ namespace TMech.Sharp.RequestMonkey
             if (!_config.OwnsHandler || _isDisposed) return;
             _isDisposed = true;
             _httpClient.Dispose();
-        }
-    }
-
-    public sealed record RequestConfiguration: FullConfiguration
-    {
-        public string? RelativeDestination { get; set; }
-        public HttpMethod Method { get; set; } = null!;
-        public HttpMessageHandler Handler { get; set; } = null!;
-        public bool OwnsHandler { get; set; }
-        public Dictionary<string, string> Headers { get; } = [];
-        public NameValueCollection UrlParameters { get; } = HttpUtility.ParseQueryString(string.Empty);
-        public JsonSerializerOptions JsonOptions { get; set; }
-
-        public RequestConfiguration()
-        {
-            JsonOptions = RequestForge.DefaultJsonSerializerOptions;
-        }
-
-        public bool TryValidate([NotNullWhen(false)] out AggregateException? errors)
-        {
-            var errorList = new List<Exception>();
-
-            if (RelativeDestination is not null && RelativeDestination.Trim().Length == 0)
-            {
-                errorList.Add(new Exception("Relative destination cannot be empty string or consist entirely of whitespace"));
-            }
-
-            if (Method is null)
-            {
-                errorList.Add(new Exception("Method cannot be null"));
-            }
-
-            if (Handler is null)
-            {
-                errorList.Add(new Exception("Handler cannot be null"));
-            }
-
-            if (errorList.Count == 0)
-            {
-                errors = null;
-                return true;
-            }
-
-            errors = new AggregateException(errorList);
-            return false;
         }
     }
 }

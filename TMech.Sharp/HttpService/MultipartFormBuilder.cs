@@ -1,9 +1,9 @@
-﻿using CZ.DM.Art.Core.Shared;
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using TMech.Sharp.RequestMonkey;
 
 namespace TMech.Sharp.HttpService
 {
@@ -55,7 +55,7 @@ namespace TMech.Sharp.HttpService
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
             //Logger.Info($"With string with field name '{name}': {content}");
-            Content.Add(new StringContent(content, MediaTypes.PlainText), name);
+            Content.Add(new StringContent(content, StandardMediaTypes.PlainText), name);
 
             return this;
         }
@@ -64,7 +64,7 @@ namespace TMech.Sharp.HttpService
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-            Content.Add(new StringContent(Convert.ToString(content), MediaTypes.PlainText), name);
+            Content.Add(new StringContent(Convert.ToString(content), StandardMediaTypes.PlainText), name);
             //Logger.Info($"With integer with field name '{name}': {content}");
 
             return this;
@@ -74,7 +74,7 @@ namespace TMech.Sharp.HttpService
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-            Content.Add(new StringContent(Convert.ToString(content), MediaTypes.PlainText), name);
+            Content.Add(new StringContent(Convert.ToString(content), StandardMediaTypes.PlainText), name);
             //Logger.Info($"With boolean with field name '{name}': {content}");
 
             return this;
@@ -85,7 +85,7 @@ namespace TMech.Sharp.HttpService
             ArgumentException.ThrowIfNullOrWhiteSpace(content);
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-            Content.Add(new StringContent(content, MediaTypes.Json), name);
+            Content.Add(new StringContent(content, StandardMediaTypes.Json), name);
             //Logger.Info($"With JSON-string with field name '{name}': {content}");
 
             return this;
@@ -100,7 +100,7 @@ namespace TMech.Sharp.HttpService
 
             Content.Add(JsonContent.Create(
                 content,
-                MediaTypes.Json,
+                StandardMediaTypes.Json,
                 JsonSerialization.StandardOptions
             ), name);
 
