@@ -63,13 +63,22 @@ namespace Tests
                 .WithMultipartFormBody(builder =>
                 {
                     builder
-                        .WithString("e3dd89f2-9da7-422d-af59-e85d717af384", "client_id")
+                        .WithString(
+                            Encoding.UTF8.GetString(Convert.FromBase64String("ZTNkZDg5ZjItOWRhNy00MjJkLWFmNTktZTg1ZDcxN2FmMzg0")),
+                            Encoding.UTF8.GetString(Convert.FromBase64String("Y2xpZW50X2lk"))
+                        )
                         .WithString(
                             Encoding.UTF8.GetString(Convert.FromBase64String("U0pGOFF+ZmozcDZNX25NMEZxaXdMbEpsSEdmdC1NeX5QVGFJWGNSSg==")),
                             Encoding.UTF8.GetString(Convert.FromBase64String("Y2xpZW50X3NlY3JldA=="))
                         )
-                        .WithString("fdb60ead-2732-4353-9c77-e4a26a441bcd/.default", "scope")
-                        .WithString("client_credentials", "grant_type");
+                        .WithString(
+                            Encoding.UTF8.GetString(Convert.FromBase64String("ZmRiNjBlYWQtMjczMi00MzUzLTljNzctZTRhMjZhNDQxYmNkLy5kZWZhdWx0")),
+                            Encoding.UTF8.GetString(Convert.FromBase64String("c2NvcGU="))
+                        )
+                        .WithString(
+                            Encoding.UTF8.GetString(Convert.FromBase64String("Y2xpZW50X2NyZWRlbnRpYWxz")),
+                            Encoding.UTF8.GetString(Convert.FromBase64String("Z3JhbnRfdHlwZQ=="))
+                        );
                 })
                 .WhenSendingRequest()
                 .ThenContinueOnFailure()
