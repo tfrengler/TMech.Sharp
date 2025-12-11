@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TMech.Sharp", "TMech.Sharp\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RequestForge", "RequestForge\RequestForge.csproj", "{20C8A469-7989-4E51-824D-8D3A9716F45F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,14 +25,22 @@ Global
 		{BDCDA68F-B8BD-4FB2-B2A7-0A6073BE4816}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BDCDA68F-B8BD-4FB2-B2A7-0A6073BE4816}.Release|x64.ActiveCfg = Release|x64
 		{BDCDA68F-B8BD-4FB2-B2A7-0A6073BE4816}.Release|x64.Build.0 = Release|x64
-		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Debug|Any CPU.Build.0 = Debug|x64
 		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Debug|x64.ActiveCfg = Debug|x64
 		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Debug|x64.Build.0 = Debug|x64
 		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Release|x64.ActiveCfg = Release|x64
 		{CFD620DA-39A1-4C6E-ABBA-F413866FB9DA}.Release|x64.Build.0 = Release|x64
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Debug|Any CPU.Build.0 = Debug|x64
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Debug|x64.Build.0 = Debug|Any CPU
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Release|x64.ActiveCfg = Release|Any CPU
+		{20C8A469-7989-4E51-824D-8D3A9716F45F}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

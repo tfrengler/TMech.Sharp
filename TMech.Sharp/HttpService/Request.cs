@@ -8,7 +8,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Web;
-using TMech.Sharp.RequestMonkey;
 
 namespace TMech.Sharp.HttpService
 {
@@ -216,7 +215,7 @@ namespace TMech.Sharp.HttpService
             ArgumentException.ThrowIfNullOrWhiteSpace(name);
             ArgumentNullException.ThrowIfNull(value);
 
-            string serializedValue = JsonSerialization.Serialize(value);
+            string serializedValue = JsonSerializer.Serialize(value);
             UrlParams.Add(name, serializedValue);
 
             return this;

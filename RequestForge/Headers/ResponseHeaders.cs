@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Net.Http.Headers;
 
-namespace TMech.Sharp.RequestMonkey;
+namespace RequestForge.Headers;
 
 public sealed record ResponseHeaders
 {

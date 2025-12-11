@@ -4,7 +4,7 @@ namespace TMech.Sharp.HttpService
 {
     public sealed class KnownHeaders
     {
-        private Dictionary<string,string> _headers;
+        private readonly Dictionary<string,string> _headers;
 
         public KnownHeaders(Dictionary<string, string> headers)
         {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace TMech.Sharp.RequestMonkey;
+namespace RequestForge;
 
 public enum StringEncoding
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
 
-namespace TMech.Sharp.HttpService;
+namespace RequestForge.Builders;
 
 /// <summary>
 /// A factory class for building a url encoded formdata body using a fluent API.

@@ -1,4 +1,4 @@
-﻿namespace TMech.Sharp.RequestMonkey;
+﻿namespace RequestForge.Headers;
 
 public sealed record RequestHeaders
 {

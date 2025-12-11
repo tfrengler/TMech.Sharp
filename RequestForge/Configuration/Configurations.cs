@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RequestForge.Core;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
@@ -7,7 +8,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Web;
 
-namespace TMech.Sharp.RequestMonkey;
+namespace RequestForge.Configuration;
 
 /// <summary>
 /// Includes base settings in addition to the ones used by the underlying message handler.
@@ -28,6 +29,9 @@ public record BaseConfiguration
     public IDictionary<string, string> DefaultHeaders { get; } = new Dictionary<string, string>();
 }
 
+/// <summary>
+/// Settings that apply to and are by <see cref="Request"/>
+/// </summary>
 public sealed record RequestConfiguration : FullConfiguration
 {
     public string? RelativeDestination { get; set; }
@@ -40,7 +44,7 @@ public sealed record RequestConfiguration : FullConfiguration
 
     public RequestConfiguration()
     {
-        JsonOptions = RequestForge.DefaultJsonSerializerOptions;
+        JsonOptions = Core.RequestForge.DefaultJsonSerializerOptions;
     }
 
     public bool TryValidate([NotNullWhen(false)] out AggregateException? errors)

@@ -20,6 +20,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\RequestForge\RequestForge.csproj" />
         <ProjectReference Include="..\TMech.Sharp\TMech.Sharp.csproj" />
     </ItemGroup>
 

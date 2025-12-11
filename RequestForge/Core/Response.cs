@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RequestForge.Headers;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -6,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace TMech.Sharp.RequestMonkey;
+namespace RequestForge.Core;
 
 public sealed class Response
 {
@@ -206,7 +207,7 @@ public sealed class Response
     {
         _response = await _httpClient.SendAsync(_request);
 
-        var headers = new HeaderCollection(
+        var headers = new ResponseHeaderCollection(
             ResponseHeaders.ParseFromHttpResponseHeaders(_response.Headers),
             ResponseBodyHeaders.ParseFromHttpResponseBodyHeaders(_response.Content.Headers)
         );

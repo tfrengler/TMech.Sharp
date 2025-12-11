@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace TMech.Sharp.HttpService;
+namespace RequestForge.Builders;
 
 /// <summary>
 /// A factory class for building a multipart formdata body using a fluent API.
@@ -24,8 +24,7 @@ public sealed class MultipartFormBuilder : IDisposable
     /// </summary>
     public static MultipartFormBuilder CreateWithBoundary(string boundary)
     {
-        ArgumentNullException.ThrowIfNull(boundary);
-        return new MultipartFormBuilder(boundary.Trim());
+        return new MultipartFormBuilder(boundary);
     }
 
     private MultipartFormBuilder(string boundary = "")
@@ -54,17 +53,7 @@ public sealed class MultipartFormBuilder : IDisposable
         return this;
     }
 
-    public MultipartFormBuilder WithInteger(long? content, string name)
-    {
-        if (content is null) return this;
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-
-        _content.Add(new StringContent(Convert.ToString(content) ?? string.Empty, StandardMediaTypes.PlainText), name);
-
-        return this;
-    }
-
-    public MultipartFormBuilder WithFloat(double? content, string name)
+    public MultipartFormBuilder WithInteger(int? content, string name)
     {
         if (content is null) return this;
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -101,7 +90,8 @@ public sealed class MultipartFormBuilder : IDisposable
 
         _content.Add(JsonContent.Create(
             content,
-            StandardMediaTypes.Json
+            StandardMediaTypes.Json,
+            Core.RequestForge.DefaultJsonSerializerOptions
         ), name);
 
         return this;

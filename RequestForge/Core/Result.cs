@@ -1,13 +1,18 @@
-﻿using System;
+﻿using RequestForge.Headers;
+using System;
 using System.Collections.Generic;
 using System.Net;
 
-namespace TMech.Sharp.RequestMonkey;
+namespace RequestForge.Core;
 
 public sealed record Result
 {
-    public Result(List<string> validationErrors, HttpStatusCode status, byte[] responseBody, HeaderCollection headers, object? responseBodyTyped)
+    public Result(List<string> validationErrors, HttpStatusCode status, byte[] responseBody, ResponseHeaderCollection headers, object? responseBodyTyped)
     {
+        ArgumentNullException.ThrowIfNull(validationErrors);
+        ArgumentNullException.ThrowIfNull(responseBody);
+        ArgumentNullException.ThrowIfNull(headers);
+
         Errors = validationErrors;
         HttpStatus = status;
         ResponseBodyRaw = responseBody;
@@ -15,7 +20,7 @@ public sealed record Result
         _responseBody = responseBodyTyped;
     }
 
-    public HeaderCollection Headers { get; }
+    public ResponseHeaderCollection Headers { get; }
     public List<string> Errors { get; } = [];
     public HttpStatusCode HttpStatus { get; }
     public byte[] ResponseBodyRaw { get; init; } = [];
@@ -28,20 +33,8 @@ public sealed record Result
             return returnData;
         }
 
-        throw new Exception($"Tried getting response body as type {typeof(T)} but it is in fact {_responseBody?.GetType()}");
+        throw new Exception($"Tried getting response body as type {typeof(T)} but it is in fact {_responseBody?.GetType().ToString() ?? "null"}");
     }
 
     public Type? GetResponseBodyType() => _responseBody?.GetType();
-}
-
-public sealed record HeaderCollection
-{
-    public HeaderCollection(ResponseHeaders response, ResponseBodyHeaders body)
-    {
-        Response = response;
-        Body = body;
-    }
-
-    public ResponseHeaders Response { get; }
-    public ResponseBodyHeaders Body { get; }
 }

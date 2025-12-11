@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using TMech.Sharp.RequestMonkey;
 using System.Threading.Tasks;
 using System;
 using System.Text;
@@ -11,15 +10,15 @@ namespace Tests
     {
         [TestCase]
         public async Task Debuggery()
-        {
+        {/*
             var result = await RequestForge
-                .FromBaseAddress("http://localhost:5000/api")
+                .FromBaseAddress("http://localhost:5000/")
                 .WithTimeout(TimeSpan.FromSeconds(30.0d))
                 .POST("/api/sessions/authenticate")
                 .WithJsonBody("""
                     {
-                        "Username": "TheAdmin",
-                        "Password": "gnargle"
+                        "Username": "tester",
+                        "Password": "tf499985"
                     }
                 """)
                 .WithKnownHeaders(x =>
@@ -29,15 +28,17 @@ namespace Tests
                 .WhenSendingRequest()
                 .ThenContinueOnFailure()
                 .ThenResponseStatusShouldBeOK()
-                .ThenResponseHeaderHasValueEqualTo("Server", "gnargle")
+                .ThenResponseHeaderHasValueEqualTo("Server", "Kestrel")
                 .ThenConsumeResponseBodyAsString((statuscode,body) =>
                 {
-                    Console.WriteLine("String body: " + body);
+                    //Console.WriteLine("String body: " + body);
                     return true;
                 })
                 .ThenConsumeResponseBodyAsJson((statuscode, body) =>
                 {
                     Console.WriteLine("The body is indeed valid JSON");
+                    string? token = body.GetProperty("AccessToken").GetString();
+                    Console.WriteLine("Token: " + token);
                     return true;
                 })
                 .Receive();
@@ -47,7 +48,41 @@ namespace Tests
             Console.WriteLine("Validation errors");
             Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
             Console.WriteLine("Response headers:");
-            Console.WriteLine(result.Headers.Response.ToString());
+            Console.WriteLine(result.Headers.ToString());*/
+        }
+
+        [TestCase]
+        public async Task Debuggery2()
+        {/*
+            var result = await RequestForge
+                .FromBaseAddress("https://login.microsoftonline.com/")
+                .WithTimeout(TimeSpan.FromSeconds(30.0d))
+                .POST("/{tenantId}/oauth2/v2.0/token")
+                .WithTemplateParameter("tenantId", "9ec2cac9-3602-4bc5-87d2-9dffd83927bc")
+                .WithMultipartFormBody(builder =>
+                {
+                    builder
+                        .WithString("e3dd89f2-9da7-422d-af59-e85d717af384", "client_id")
+                        .WithString("SJF8Q~fj3p6M_nM0FqiwLlJlHGft-My~PTaIXcRJ", "client_secret")
+                        .WithString("fdb60ead-2732-4353-9c77-e4a26a441bcd/.default", "scope")
+                        .WithString("client_credentials", "grant_type");
+                })
+                .WhenSendingRequest()
+                .ThenContinueOnFailure()
+                .ThenResponseStatusShouldBeOK()
+                .ThenConsumeResponseBodyAsJson((statuscode, body) =>
+                {
+                    Console.WriteLine("The body is indeed valid JSON:");
+                    Console.WriteLine(JsonSerialization.Serialize(body));
+                    return true;
+                })
+                .Receive();
+
+            Console.WriteLine($"Result content type: {result.GetResponseBodyType()}");
+            Console.WriteLine("Validation errors");
+            Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
+            Console.WriteLine("Response headers:");
+            Console.WriteLine(result.Headers.ToString());*/
         }
     }
 }
