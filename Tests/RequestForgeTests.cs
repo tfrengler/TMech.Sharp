@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Threading.Tasks;
 using System;
+using RequestForge.Serialization;
 using System.Text;
 
 namespace Tests
@@ -53,8 +54,8 @@ namespace Tests
 
         [TestCase]
         public async Task Debuggery2()
-        {/*
-            var result = await RequestForge
+        {
+            var result = await RequestForge.Core.RequestForge
                 .FromBaseAddress("https://login.microsoftonline.com/")
                 .WithTimeout(TimeSpan.FromSeconds(30.0d))
                 .POST("/{tenantId}/oauth2/v2.0/token")
@@ -63,7 +64,10 @@ namespace Tests
                 {
                     builder
                         .WithString("e3dd89f2-9da7-422d-af59-e85d717af384", "client_id")
-                        .WithString("SJF8Q~fj3p6M_nM0FqiwLlJlHGft-My~PTaIXcRJ", "client_secret")
+                        .WithString(
+                            Encoding.UTF8.GetString(Convert.FromBase64String("U0pGOFF+ZmozcDZNX25NMEZxaXdMbEpsSEdmdC1NeX5QVGFJWGNSSg==")),
+                            Encoding.UTF8.GetString(Convert.FromBase64String("Y2xpZW50X3NlY3JldA=="))
+                        )
                         .WithString("fdb60ead-2732-4353-9c77-e4a26a441bcd/.default", "scope")
                         .WithString("client_credentials", "grant_type");
                 })
@@ -82,7 +86,7 @@ namespace Tests
             Console.WriteLine("Validation errors");
             Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
             Console.WriteLine("Response headers:");
-            Console.WriteLine(result.Headers.ToString());*/
+            Console.WriteLine(result.Headers.ToString());
         }
     }
 }

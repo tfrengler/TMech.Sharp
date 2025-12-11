@@ -327,11 +327,9 @@ namespace RequestForge.Core
         {
             ArgumentNullException.ThrowIfNull(builderDelegate);
 
-            using (var multipartBuilder = MultipartFormBuilder.Create())
-            {
-                builderDelegate(multipartBuilder);
-                _request.Content = multipartBuilder.Build();
-            }
+            var multipartBuilder = MultipartFormBuilder.Create();
+            builderDelegate(multipartBuilder);
+            _request.Content = multipartBuilder.Build();
 
             return this;
         }

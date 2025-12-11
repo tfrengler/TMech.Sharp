@@ -10,7 +10,7 @@
     <Authors>Thomas Frengler</Authors>
     <Copyright>Thomas Frengler @ 2025</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
-    <PlatformTarget>x64</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

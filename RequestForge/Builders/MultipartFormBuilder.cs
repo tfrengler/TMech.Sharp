@@ -9,7 +9,7 @@ namespace RequestForge.Builders;
 /// <summary>
 /// A factory class for building a multipart formdata body using a fluent API.
 /// </summary>
-public sealed class MultipartFormBuilder : IDisposable
+public sealed class MultipartFormBuilder
 {
     /// <summary>
     /// Creates a new instance of the factory with an empty multipart formdata body that you can add content to.
@@ -41,7 +41,6 @@ public sealed class MultipartFormBuilder : IDisposable
 
     private bool _hasBeenBuilt;
     private readonly MultipartFormDataContent _content;
-    private bool _isDisposed;
 
     public MultipartFormBuilder WithString(string? content, string name)
     {
@@ -155,12 +154,5 @@ public sealed class MultipartFormBuilder : IDisposable
 
         _hasBeenBuilt = true;
         return _content;
-    }
-
-    public void Dispose()
-    {
-        if (_isDisposed) return;
-        _isDisposed = true;
-        _content.Dispose();
     }
 }
