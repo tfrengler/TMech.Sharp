@@ -19,12 +19,13 @@ public sealed class RequestForge
     private readonly RequestConfiguration _config;
     private HttpMessageHandler? _messageHandler;
 
+#warning TODO(Thomas): Consider making this configurable by the caller
     public static JsonSerializerOptions DefaultJsonSerializerOptions { get; } = new JsonSerializerOptions()
     {
         WriteIndented = true,
         Converters = { new JsonStringEnumConverter(null, true) },
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
     };
 
     #region STATIC / INITIALIZATION

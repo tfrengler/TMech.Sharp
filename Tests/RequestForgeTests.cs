@@ -39,11 +39,11 @@ namespace Tests
                 .ThenContinueOnFailure()
                 .ThenResponseStatusShouldBeOK()
                 .ThenResponseHeaderHasValueEqualTo("Server", "Kestrel")
-                .ThenConsumeResponseBodyAsString((statuscode,body) =>
-                {
-                    //Console.WriteLine("String body: " + body);
-                    return true;
-                })
+                //.ThenConsumeResponseBodyAsString((statuscode,body) =>
+                //{
+                //    //Console.WriteLine("String body: " + body);
+                //    return true;
+                //})
                 .ThenConsumeResponseBodyAsJson<TokenResponse>((statuscode, body) =>
                 {
                     Console.WriteLine("AccessToken: " + body.AccessToken);

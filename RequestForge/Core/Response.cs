@@ -191,7 +191,14 @@ public sealed class Response
         return this;
     }
 
-    public Response ThenConsumeResponseBodyAsJson<T>(ResponseBodyPredicate<T> predicate)
+    /// <summary>
+    /// <para>Attempts to parse the response body as a UTF-8 string and convert it to a strongly typed structure defined by the caller.</para>
+    /// <para>The caller is then free to further parse and validate the JSON structure.</para>
+    /// </summary>
+    /// <param name="predicate">A function that receives the <see cref="JsonElement"/>-instance after it has been successfully parsed.</param>
+    /// <param name="deserializerOptions">Options used to deserialize the body to JSON. Optional. Defaults to <see cref="RequestForge.DefaultJsonSerializerOptions"/></param>
+    /// <returns>A self-reference for chaining additional calls or retrieve the result.</returns>
+    public Response ThenConsumeResponseBodyAsJson<T>(ResponseBodyPredicate<T> predicate, JsonSerializerOptions? deserializerOptions = null) where T: class
     {
         ArgumentNullException.ThrowIfNull(predicate);
 
@@ -202,7 +209,7 @@ public sealed class Response
             T? responseBodyAsJson;
             try
             {
-                responseBodyAsJson = JsonSerializer.Deserialize<T>(responseBodyAsString);
+                responseBodyAsJson = JsonSerializer.Deserialize<T>(responseBodyAsString, deserializerOptions ?? RequestForge.DefaultJsonSerializerOptions);
             }
             catch(JsonException)
             {
@@ -223,7 +230,14 @@ public sealed class Response
         return this;
     }
 
-    public Response ThenConsumeResponseBodyAsJson(ResponseBodyPredicate<JsonElement> predicate)
+    /// <summary>
+    /// <para>Attempts to parse the response body as a UTF-8 string and convert it to a untyped JSON-structure in the form of <see cref="JsonElement"/>.</para>
+    /// <para>The caller is then free to further parse and validate the JSON structure.</para>
+    /// </summary>
+    /// <param name="predicate">A function that receives the <see cref="JsonElement"/>-instance after it has been successfully parsed.</param>
+    /// <param name="deserializerOptions">Options used to deserialize the body to JSON. Optional. Defaults to <see cref="RequestForge.DefaultJsonSerializerOptions"/></param>
+    /// <returns>A self-reference for chaining additional calls or retrieve the result.</returns>
+    public Response ThenConsumeResponseBodyAsJson(ResponseBodyPredicate<JsonElement> predicate, JsonSerializerOptions? deserializerOptions = null)
     {
         ArgumentNullException.ThrowIfNull(predicate);
 
@@ -234,7 +248,7 @@ public sealed class Response
 
             try
             {
-                responseBodyAsJson = JsonSerializer.Deserialize<JsonElement>(responseBodyAsString);
+                responseBodyAsJson = JsonSerializer.Deserialize<JsonElement>(responseBodyAsString, deserializerOptions ?? RequestForge.DefaultJsonSerializerOptions);
             }
             catch (JsonException)
             {
