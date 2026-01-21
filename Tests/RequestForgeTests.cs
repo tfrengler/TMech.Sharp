@@ -3,22 +3,31 @@ using System.Threading.Tasks;
 using System;
 using RequestForge.Serialization;
 using System.Text;
+using SharpCompress.Compressors.ZStandard.Unsafe;
 
 namespace Tests
 {
+    sealed record TokenResponse
+    {
+        public string AccessToken {get;set;} = string.Empty;
+        public string AccessTokenExpires {get;set;} = string.Empty;
+        public string RefreshToken {get;set;} = string.Empty;
+        public string RefreshTokenExpires { get; set; } = string.Empty;
+    }
+
     [TestFixture]
     public class RequestForgeTests
     {
         [TestCase]
         public async Task Debuggery()
-        {/*
-            var result = await RequestForge
+        {
+            var result = await RequestForge.Core.RequestForge
                 .FromBaseAddress("http://localhost:5000/")
                 .WithTimeout(TimeSpan.FromSeconds(30.0d))
                 .POST("/api/sessions/authenticate")
                 .WithJsonBody("""
                     {
-                        "Username": "tester",
+                        "Username": "tfrengler",
                         "Password": "tf499985"
                     }
                 """)
@@ -35,26 +44,29 @@ namespace Tests
                     //Console.WriteLine("String body: " + body);
                     return true;
                 })
-                .ThenConsumeResponseBodyAsJson((statuscode, body) =>
+                .ThenConsumeResponseBodyAsJson<TokenResponse>((statuscode, body) =>
                 {
-                    Console.WriteLine("The body is indeed valid JSON");
-                    string? token = body.GetProperty("AccessToken").GetString();
-                    Console.WriteLine("Token: " + token);
+                    Console.WriteLine("AccessToken: " + body.AccessToken);
+                    Console.WriteLine("AccessTokenExpires: " + body.AccessTokenExpires);
+                    Console.WriteLine("RefreshToken: " + body.RefreshToken);
+                    Console.WriteLine("RefreshTokenExpires: " + body.RefreshTokenExpires);
+
                     return true;
                 })
-                .Receive();
+                .GetResult();
 
             Console.WriteLine($"Result content size: {result.ResponseBodyRaw.Length}");
             Console.WriteLine($"Result content type: {result.GetResponseBodyType()}");
             Console.WriteLine("Validation errors");
             Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
             Console.WriteLine("Response headers:");
-            Console.WriteLine(result.Headers.ToString());*/
+            Console.WriteLine(result.Headers.ToString());
         }
 
         [TestCase]
         public async Task Debuggery2()
         {
+            /*
             var result = await RequestForge.Core.RequestForge
                 .FromBaseAddress("https://login.microsoftonline.com/")
                 .WithTimeout(TimeSpan.FromSeconds(30.0d))
@@ -96,6 +108,7 @@ namespace Tests
             Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
             Console.WriteLine("Response headers:");
             Console.WriteLine(result.Headers.ToString());
+            */
         }
     }
 }

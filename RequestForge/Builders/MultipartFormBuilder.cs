@@ -47,7 +47,7 @@ public sealed class MultipartFormBuilder
         if (content is null) return this;
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        _content.Add(new StringContent(content, StandardMediaTypes.PlainText), name);
+        _content.Add(ContentBuilder.PlainTextBody(content), name);
 
         return this;
     }
@@ -57,7 +57,12 @@ public sealed class MultipartFormBuilder
         if (content is null) return this;
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        _content.Add(new StringContent(Convert.ToString(content) ?? string.Empty, StandardMediaTypes.PlainText), name);
+        _content.Add(
+            ContentBuilder.PlainTextBody(
+                ContentBuilder.IntegerValue(content.Value)
+            ),
+            name
+        );
 
         return this;
     }
@@ -67,7 +72,12 @@ public sealed class MultipartFormBuilder
         if (content is null) return this;
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        _content.Add(new StringContent(Convert.ToString(content) ?? string.Empty, StandardMediaTypes.PlainText), name);
+        _content.Add(
+            ContentBuilder.PlainTextBody(
+                ContentBuilder.BooleanValue(content.Value)
+            ),
+            name
+        );
 
         return this;
     }
@@ -77,7 +87,7 @@ public sealed class MultipartFormBuilder
         if (content is null) return this;
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        _content.Add(new StringContent(content, StandardMediaTypes.Json), name);
+        _content.Add(ContentBuilder.JsonBody(content), name);
 
         return this;
     }
@@ -87,11 +97,7 @@ public sealed class MultipartFormBuilder
         if (content is null) return this;
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
-        _content.Add(JsonContent.Create(
-            content,
-            StandardMediaTypes.Json,
-            Core.RequestForge.DefaultJsonSerializerOptions
-        ), name);
+        _content.Add(ContentBuilder.JsonBody<T>(content), name);
 
         return this;
     }

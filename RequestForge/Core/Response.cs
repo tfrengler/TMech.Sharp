@@ -63,9 +63,11 @@ public sealed class Response
         return this;
     }
 
+    #region STATUS
+
     public Response ThenResponseStatusShouldBeOK(bool continueOnFailure = false)
     {
-        continueOnFailure = _continueOnFailure;
+        _continueOnFailure = continueOnFailure;
         _predicates.Add(httpResponseMessage =>
         {
             if (httpResponseMessage.IsSuccessStatusCode)
@@ -73,27 +75,49 @@ public sealed class Response
                 return true;
             }
             _validationErrors.Add("Expected status code to indicate success (200-299) but it was: " + httpResponseMessage.StatusCode);
-            return continueOnFailure;
+            return _continueOnFailure;
         });
 
         return this;
     }
 
-    public Response ThenConsumeResponseBody(Func<HttpStatusCode, byte[], bool> predicate)
+    public Response ThenResponseStatusIs(HttpStatusCode expectedStatus, bool continueOnFailure = false)
     {
+        _continueOnFailure = continueOnFailure;
+
         _predicates.Add(httpResponseMessage =>
         {
-            byte[] responseBody = GetContent();
-            if (responseBody.Length > 0)
+            if (httpResponseMessage.StatusCode == expectedStatus)
             {
                 return true;
             }
-            _validationErrors.Add("Expected response to have a body but it does not");
-            return predicate(httpResponseMessage.StatusCode, responseBody);
+            _validationErrors.Add($"Expected response to have statuscode {expectedStatus} but it was {httpResponseMessage.StatusCode}");
+            return _continueOnFailure;
         });
 
         return this;
     }
+
+    public Response ThenResponseStatusIs(int expectedStatus, bool continueOnFailure = false)
+    {
+        _continueOnFailure = continueOnFailure;
+
+        _predicates.Add(httpResponseMessage =>
+        {
+            if ((int)httpResponseMessage.StatusCode == expectedStatus)
+            {
+                return true;
+            }
+            _validationErrors.Add($"Expected response to have statuscode {expectedStatus} but it was {(int)httpResponseMessage.StatusCode}");
+            return _continueOnFailure;
+        });
+
+        return this;
+    }
+
+    #endregion
+
+    #region HEADERS
 
     public Response ThenResponseHeaderHasValueEqualTo(string name, string? value, bool continueOnFailure = false)
     {
@@ -115,6 +139,28 @@ public sealed class Response
 
             _validationErrors.Add($"Expected response header by name '{name}' that have a value equal to '{value}' but instead it was '{actualHeaderValue}'");
             return continueOnFailure;
+        });
+
+        return this;
+    }
+
+    #endregion
+
+    #region BODY
+
+    public Response ThenConsumeResponseBody(Func<HttpStatusCode, byte[], bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+
+        _predicates.Add(httpResponseMessage =>
+        {
+            byte[] responseBody = GetContent();
+            if (responseBody.Length > 0)
+            {
+                return true;
+            }
+            _validationErrors.Add("Expected response to have a body but it does not");
+            return predicate(httpResponseMessage.StatusCode, responseBody);
         });
 
         return this;
@@ -203,7 +249,9 @@ public sealed class Response
         return this;
     }
 
-    public async Task<Result> Receive()
+    #endregion
+
+    public async Task<Result> GetResult()
     {
         _response = await _httpClient.SendAsync(_request);
 
@@ -221,7 +269,6 @@ public sealed class Response
         );
     }
 
-    // ThenStatusIs
     // ThenHeadersAre(Action<Headers>)
     // ThenHeadersContain(Action<Headers>)
     // ThenParseBodyAsLong()

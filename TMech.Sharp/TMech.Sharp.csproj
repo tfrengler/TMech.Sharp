@@ -9,16 +9,17 @@
     <VersionPrefix>0.1.0</VersionPrefix>
     <VersionSuffix></VersionSuffix>
     <Authors>Thomas Frengler</Authors>
-    <Copyright>Thomas Frengler @ 2025</Copyright>
+    <Copyright>Thomas Frengler @ 2026</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <AssemblyTitle>TMech.Sharp</AssemblyTitle>
     <Description>Utilities for software testing</Description>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Selenium.Support" Version="4.38.0" />
-    <PackageReference Include="Selenium.WebDriver" Version="4.38.0" />
-    <PackageReference Include="SharpCompress" Version="0.42.0" />
+    <PackageReference Include="Selenium.Support" Version="4.40.0" />
+    <PackageReference Include="Selenium.WebDriver" Version="4.40.0" />
+    <PackageReference Include="SharpCompress" Version="0.44.1" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.9" />
   </ItemGroup>
 
