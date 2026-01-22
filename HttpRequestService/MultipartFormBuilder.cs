@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
-namespace TMech.Sharp.HttpService;
+namespace TMech.Sharp.HttpRequestService;
 
 /// <summary>
 /// A factory class for building a multipart formdata body using a fluent API.
@@ -122,8 +122,6 @@ public sealed class MultipartFormBuilder : IDisposable
         if (filePathAndName is null) return this;
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(mimeType);
-
-        //Logger.Info($"With file with field name '{name}' and mime-type '{mimeType}': {filePathAndName}");
 
         var sourceFile = new FileInfo(filePathAndName);
 

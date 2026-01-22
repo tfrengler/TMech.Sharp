@@ -118,8 +118,6 @@ public sealed class MultipartFormBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         ArgumentException.ThrowIfNullOrWhiteSpace(mimeType);
 
-        //Logger.Info($"With file with field name '{name}' and mime-type '{mimeType}': {filePathAndName}");
-
         var sourceFile = new FileInfo(filePathAndName);
 
         if (!sourceFile.Exists)

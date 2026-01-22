@@ -20,6 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\BrowserManager\BrowserManager.csproj" />
+        <ProjectReference Include="..\HttpRequestService\HttpRequestService.csproj" />
         <ProjectReference Include="..\RequestForge\RequestForge.csproj" />
         <ProjectReference Include="..\TMech.Sharp\TMech.Sharp.csproj" />
     </ItemGroup>

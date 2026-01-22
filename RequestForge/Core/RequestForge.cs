@@ -18,14 +18,21 @@ public sealed class RequestForge
 
     private readonly RequestConfiguration _config;
     private HttpMessageHandler? _messageHandler;
-
-    public static JsonSerializerOptions DefaultJsonSerializerOptions { get; } = new JsonSerializerOptions()
+    public static JsonSerializerOptions _defaultJsonSerializerOptions = new JsonSerializerOptions()
     {
         WriteIndented = true,
         Converters = { new JsonStringEnumConverter(null, true) },
         Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
+    public static JsonSerializerOptions DefaultJsonSerializerOptions {
+        get => _defaultJsonSerializerOptions;
+        set {
+            ArgumentNullException.ThrowIfNull(value);
+            _defaultJsonSerializerOptions = value;
+        }
+    }
 
     #region STATIC / INITIALIZATION
 

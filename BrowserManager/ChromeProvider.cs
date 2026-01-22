@@ -259,8 +259,8 @@ namespace TMech.Sharp.Browsers
             var ChromeUrl = ReleaseData.Channels.Stable.Downloads.Chrome.Single(current => current.Platform == PlatformName).Url;
             var ChromedriverUrl = ReleaseData.Channels.Stable.Downloads.Chromedriver.Single(current => current.Platform == PlatformName).Url;
 
-            return new BinaryDownloadAssetData[]
-            {
+            return
+            [
                 new BinaryDownloadAssetData()
                 {
                     ReadableVersion = VersionString,
@@ -273,7 +273,7 @@ namespace TMech.Sharp.Browsers
                     Version = ParsedVersion,
                     DownloadUri = new Uri(ChromedriverUrl)
                 }
-            };
+            ];
         }
 
         /// <summary>

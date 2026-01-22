@@ -1,8 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Threading.Tasks;
 using System;
-using RequestForge.Serialization;
-using System.Text;
 using SharpCompress.Compressors.ZStandard.Unsafe;
 
 namespace Tests
@@ -16,9 +14,45 @@ namespace Tests
     }
 
     [TestFixture]
-    public class RequestForgeTests
+    public sealed class RequestForgeTests
     {
-        [TestCase]
+        private TokenResponse _ApiToken = null!;
+
+        [OneTimeSetUp]
+        public async Task BeforeAll()
+        {
+            var result = await RequestForge.Core.RequestForge
+                .FromBaseAddress("http://localhost:5000/")
+                .WithTimeout(TimeSpan.FromSeconds(10.0d))
+                .POST("/api/sessions/authenticate")
+                .WithJsonBody("""
+                    {
+                        "Username": "tfrengler",
+                        "Password": "tf499985"
+                    }
+                """)
+                .WithKnownHeaders(x =>
+                {
+                    x.Accept("application/json");
+                })
+                .WhenSendingRequest()
+                .ThenResponseStatusShouldBeOK()
+                .ThenConsumeResponseBodyAsJson<TokenResponse>((_, body) =>
+                {
+                    Console.WriteLine("AccessToken: " + body.AccessToken);
+                    Console.WriteLine("AccessTokenExpires: " + body.AccessTokenExpires);
+                    Console.WriteLine("RefreshToken: " + body.RefreshToken);
+                    Console.WriteLine("RefreshTokenExpires: " + body.RefreshTokenExpires);
+                    _ApiToken = body;
+
+                    return true;
+                })
+                .GetResult();
+
+            Assert.That(result.Errors, Is.Empty);
+        }
+
+        [Test(Description = "Doing debugging")]
         public async Task Debuggery()
         {
             var result = await RequestForge.Core.RequestForge
@@ -63,7 +97,7 @@ namespace Tests
             Console.WriteLine(result.Headers.ToString());
         }
 
-        [TestCase]
+        [Test(Description = "A second debugging")]
         public async Task Debuggery2()
         {
             /*
