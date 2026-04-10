@@ -18,7 +18,7 @@ namespace Tests
     {
         private TokenResponse _ApiToken = null!;
 
-        [OneTimeSetUp]
+        //[OneTimeSetUp]
         public async Task BeforeAll()
         {
             var result = await RequestForge.Core.RequestForge
@@ -72,77 +72,26 @@ namespace Tests
                 .WhenSendingRequest()
                 .ThenContinueOnFailure()
                 .ThenResponseStatusShouldBeOK()
-                .ThenResponseHeaderHasValueEqualTo("Server", "Kestrel")
+                .ThenResponseHeaderHasValueEqualTo("Server", "gnargle", true)
+                .ThenResponseHasHeaders((_,headers) =>
+                {
+                    TestContext.Out.WriteLine("Second predicate having a go!");
+                    return headers.Response.Location.Length > 0;
+                })
                 //.ThenConsumeResponseBodyAsString((statuscode,body) =>
                 //{
                 //    //Console.WriteLine("String body: " + body);
                 //    return true;
                 //})
-                .ThenConsumeResponseBodyAsJson<TokenResponse>((statuscode, body) =>
-                {
-                    Console.WriteLine("AccessToken: " + body.AccessToken);
-                    Console.WriteLine("AccessTokenExpires: " + body.AccessTokenExpires);
-                    Console.WriteLine("RefreshToken: " + body.RefreshToken);
-                    Console.WriteLine("RefreshTokenExpires: " + body.RefreshTokenExpires);
-
-                    return true;
-                })
+                .ThenConsumeResponseBodyAsJson<TokenResponse>()
                 .GetResult();
 
-            Console.WriteLine($"Result content size: {result.ResponseBodyRaw.Length}");
-            Console.WriteLine($"Result content type: {result.GetResponseBodyType()}");
-            Console.WriteLine("Validation errors");
-            Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
-            Console.WriteLine("Response headers:");
-            Console.WriteLine(result.Headers.ToString());
-        }
-
-        [Test(Description = "A second debugging")]
-        public async Task Debuggery2()
-        {
-            /*
-            var result = await RequestForge.Core.RequestForge
-                .FromBaseAddress("https://login.microsoftonline.com/")
-                .WithTimeout(TimeSpan.FromSeconds(30.0d))
-                .POST("/{tenantId}/oauth2/v2.0/token")
-                .WithTemplateParameter("tenantId", "9ec2cac9-3602-4bc5-87d2-9dffd83927bc")
-                .WithMultipartFormBody(builder =>
-                {
-                    builder
-                        .WithString(
-                            Encoding.UTF8.GetString(Convert.FromBase64String("ZTNkZDg5ZjItOWRhNy00MjJkLWFmNTktZTg1ZDcxN2FmMzg0")),
-                            Encoding.UTF8.GetString(Convert.FromBase64String("Y2xpZW50X2lk"))
-                        )
-                        .WithString(
-                            Encoding.UTF8.GetString(Convert.FromBase64String("U0pGOFF+ZmozcDZNX25NMEZxaXdMbEpsSEdmdC1NeX5QVGFJWGNSSg==")),
-                            Encoding.UTF8.GetString(Convert.FromBase64String("Y2xpZW50X3NlY3JldA=="))
-                        )
-                        .WithString(
-                            Encoding.UTF8.GetString(Convert.FromBase64String("ZmRiNjBlYWQtMjczMi00MzUzLTljNzctZTRhMjZhNDQxYmNkLy5kZWZhdWx0")),
-                            Encoding.UTF8.GetString(Convert.FromBase64String("c2NvcGU="))
-                        )
-                        .WithString(
-                            Encoding.UTF8.GetString(Convert.FromBase64String("Y2xpZW50X2NyZWRlbnRpYWxz")),
-                            Encoding.UTF8.GetString(Convert.FromBase64String("Z3JhbnRfdHlwZQ=="))
-                        );
-                })
-                .WhenSendingRequest()
-                .ThenContinueOnFailure()
-                .ThenResponseStatusShouldBeOK()
-                .ThenConsumeResponseBodyAsJson((statuscode, body) =>
-                {
-                    Console.WriteLine("The body is indeed valid JSON:");
-                    Console.WriteLine(JsonSerialization.Serialize(body));
-                    return true;
-                })
-                .Receive();
-
-            Console.WriteLine($"Result content type: {result.GetResponseBodyType()}");
-            Console.WriteLine("Validation errors");
-            Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
-            Console.WriteLine("Response headers:");
-            Console.WriteLine(result.Headers.ToString());
-            */
+            //Console.WriteLine($"Result content size: {result.ResponseBodyRaw.Length}");
+            //Console.WriteLine($"Result content type: {result.GetResponseBodyType()}");
+            //Console.WriteLine("Validation errors");
+            //Console.WriteLine(string.Join(Environment.NewLine, result.Errors));
+            //Console.WriteLine("Response headers:");
+            //Console.WriteLine(result.Headers.ToString());
         }
     }
 }

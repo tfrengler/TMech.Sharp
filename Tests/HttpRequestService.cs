@@ -137,7 +137,7 @@ public class HttpRequestServiceTests
             WriteIndented = true,
             Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-            Converters = { new JsonStringEnumConverter() }
+            Converters = { new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, false) }
         }));
     }
 

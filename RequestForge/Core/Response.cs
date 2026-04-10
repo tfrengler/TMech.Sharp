@@ -1,6 +1,7 @@
 ﻿using RequestForge.Headers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
@@ -28,6 +29,7 @@ public sealed class Response
     private bool _isContentBuffered = false;
     private byte[] _contentBuffer = [];
     private bool _continueOnFailure = false;
+    private bool _tempContinueOnFailure = false;
     private object? _parsedContent = null;
 
     private byte[] GetContent()
@@ -44,6 +46,17 @@ public sealed class Response
         return _contentBuffer;
     }
 
+    private void TemporarilySwapContinueOnFailure(bool value)
+    {
+        _tempContinueOnFailure = _continueOnFailure;
+        _continueOnFailure = value;
+    }
+
+    private void RestoreContinueOnFailure()
+    {
+        _continueOnFailure = _tempContinueOnFailure;
+    }
+
     private List<string> ResolvePredicates()
     {
         foreach(ResponsePredicate predicate in _predicates)
@@ -57,6 +70,11 @@ public sealed class Response
         return _validationErrors;
     }
 
+    /// <summary>
+    /// Normally applying predicates after calling <see cref="GetResult"/> - registered by invoking the various <c>Then</c>-methods - is done until one of them fails or all succeed.
+    /// When calling this method all predicates are applied regardless of whether they succeed or not.
+    /// </summary>
+    /// <returns></returns>
     public Response ThenContinueOnFailure()
     {
         _continueOnFailure = true;
@@ -67,7 +85,8 @@ public sealed class Response
 
     public Response ThenResponseStatusShouldBeOK(bool continueOnFailure = false)
     {
-        _continueOnFailure = continueOnFailure;
+        TemporarilySwapContinueOnFailure(continueOnFailure);
+
         _predicates.Add(httpResponseMessage =>
         {
             if (httpResponseMessage.IsSuccessStatusCode)
@@ -78,12 +97,13 @@ public sealed class Response
             return _continueOnFailure;
         });
 
+        RestoreContinueOnFailure();
         return this;
     }
 
     public Response ThenResponseStatusIs(HttpStatusCode expectedStatus, bool continueOnFailure = false)
     {
-        _continueOnFailure = continueOnFailure;
+        TemporarilySwapContinueOnFailure(continueOnFailure);
 
         _predicates.Add(httpResponseMessage =>
         {
@@ -95,12 +115,13 @@ public sealed class Response
             return _continueOnFailure;
         });
 
+        RestoreContinueOnFailure();
         return this;
     }
 
     public Response ThenResponseStatusIs(int expectedStatus, bool continueOnFailure = false)
     {
-        _continueOnFailure = continueOnFailure;
+        TemporarilySwapContinueOnFailure(continueOnFailure);
 
         _predicates.Add(httpResponseMessage =>
         {
@@ -112,6 +133,7 @@ public sealed class Response
             return _continueOnFailure;
         });
 
+        RestoreContinueOnFailure();
         return this;
     }
 
@@ -123,7 +145,8 @@ public sealed class Response
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         if (value is null) return this;
-        continueOnFailure = _continueOnFailure;
+
+        TemporarilySwapContinueOnFailure(continueOnFailure);
 
         _predicates.Add(httpResponseMessage =>
         {
@@ -137,10 +160,59 @@ public sealed class Response
             bool headerValuesAreEqual = string.Equals(value, actualHeaderValue, StringComparison.OrdinalIgnoreCase);
             if (headerValuesAreEqual) return true;
 
-            _validationErrors.Add($"Expected response header by name '{name}' that have a value equal to '{value}' but instead it was '{actualHeaderValue}'");
+            _validationErrors.Add($"Expected response header by name '{name}' to have a value equal to '{value}' but instead it was '{actualHeaderValue}'");
+            RestoreContinueOnFailure();
             return continueOnFailure;
         });
 
+        return this;
+    }
+
+    public Response ThenResponseHeaderHasValueContaining(string name, string? value, bool continueOnFailure = false)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (value is null) return this;
+        TemporarilySwapContinueOnFailure(continueOnFailure);
+
+        _predicates.Add(httpResponseMessage =>
+        {
+            if (!httpResponseMessage.Headers.TryGetValues(name, out var values))
+            {
+                _validationErrors.Add($"Expected response to have a header by name '{name}' but it does not");
+                return false;
+            }
+
+            bool validationSuccess = values.Contains(value);
+            if (validationSuccess) return true;
+
+            _validationErrors.Add($"Expected response header by name '{name}' to have a value containing '{value}' but it did not: {string.Join(';', values)}");
+            return continueOnFailure;
+        });
+
+        RestoreContinueOnFailure();
+        return this;
+    }
+
+    public Response ThenResponseHasHeaders(Func<HttpStatusCode, ResponseHeaderCollection, bool> predicate, bool continueOnFailure = false)
+    {
+        TemporarilySwapContinueOnFailure(continueOnFailure);
+
+        _predicates.Add(httpResponse =>
+        {
+            var headers = new ResponseHeaderCollection(
+                ResponseHeaders.ParseFromHttpResponseHeaders(httpResponse.Headers),
+                ResponseBodyHeaders.ParseFromHttpResponseBodyHeaders(httpResponse.Content.Headers)
+            );
+
+            if (predicate(httpResponse.StatusCode, headers))
+            {
+                return true;
+            }
+
+            return continueOnFailure;
+        });
+
+        RestoreContinueOnFailure();
         return this;
     }
 
@@ -164,6 +236,11 @@ public sealed class Response
         });
 
         return this;
+    }
+
+    public Response ThenConsumeResponseBodyAsString(StringEncoding encoding = StringEncoding.UTF8)
+    {
+        return ThenConsumeResponseBodyAsString((_, _) => true, encoding);
     }
 
     public Response ThenConsumeResponseBodyAsString(Func<HttpStatusCode,string,bool> predicate, StringEncoding encoding = StringEncoding.UTF8)
@@ -191,11 +268,16 @@ public sealed class Response
         return this;
     }
 
+    public Response ThenConsumeResponseBodyAsJson<T>(JsonSerializerOptions? deserializerOptions = null) where T : class
+    {
+        return ThenConsumeResponseBodyAsJson<T>((status, body) => true, deserializerOptions);
+    }
+
     /// <summary>
-    /// <para>Attempts to parse the response body as a UTF-8 string and convert it to a strongly typed structure defined by the caller.</para>
-    /// <para>The caller is then free to further parse and validate the JSON structure.</para>
+    /// <para>Attempts to parse the response body as a JSON and convert it to a strongly typed structure defined by the caller.</para>
+    /// <para>The caller is then free to further parse and validate the JSON structure in the predicate.</para>
     /// </summary>
-    /// <param name="predicate">A function that receives the <see cref="JsonElement"/>-instance after it has been successfully parsed.</param>
+    /// <param name="predicate">A function that receives the <typeparamref name="T"/>-instance after it has been successfully parsed for further validation. Should return <c>True</c> or <c>False</c> to indicate validation success or failure.</param>
     /// <param name="deserializerOptions">Options used to deserialize the body to JSON. Optional. Defaults to <see cref="RequestForge.DefaultJsonSerializerOptions"/></param>
     /// <returns>A self-reference for chaining additional calls or retrieve the result.</returns>
     public Response ThenConsumeResponseBodyAsJson<T>(ResponseBodyPredicate<T> predicate, JsonSerializerOptions? deserializerOptions = null) where T: class
@@ -230,11 +312,16 @@ public sealed class Response
         return this;
     }
 
+    public Response ThenConsumeResponseBodyAsJson(JsonSerializerOptions? deserializerOptions = null)
+    {
+        return ThenConsumeResponseBodyAsJson((status, body) => true, deserializerOptions);
+    }
+
     /// <summary>
-    /// <para>Attempts to parse the response body as a UTF-8 string and convert it to a untyped JSON-structure in the form of <see cref="JsonElement"/>.</para>
-    /// <para>The caller is then free to further parse and validate the JSON structure.</para>
+    /// <para>Attempts to parse the response body as a JSON and convert it to a strongly typed structure defined by the caller.</para>
+    /// <para>The caller is then free to further parse and validate the JSON structure in the predicate.</para>
     /// </summary>
-    /// <param name="predicate">A function that receives the <see cref="JsonElement"/>-instance after it has been successfully parsed.</param>
+    /// <param name="predicate">A function that receives the <see cref="JsonElement"/>-instance after it has been successfully parsed for further validation. Should return <c>True</c> or <c>False</c> to indicate validation success or failure.</param>
     /// <param name="deserializerOptions">Options used to deserialize the body to JSON. Optional. Defaults to <see cref="RequestForge.DefaultJsonSerializerOptions"/></param>
     /// <returns>A self-reference for chaining additional calls or retrieve the result.</returns>
     public Response ThenConsumeResponseBodyAsJson(ResponseBodyPredicate<JsonElement> predicate, JsonSerializerOptions? deserializerOptions = null)
